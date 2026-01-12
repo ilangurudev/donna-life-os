@@ -36,7 +36,7 @@ function App() {
     )
   }
 
-  // Desktop layout
+  // Desktop layout - Notes take 60% by default, draggable from 20% to 80%
   return (
     <div className="h-screen w-screen overflow-hidden bg-donna-bg">
       <SplitPane
@@ -48,9 +48,9 @@ function App() {
           />
         }
         right={<ChatPanel />}
-        defaultLeftWidth={350}
-        minLeftWidth={250}
-        maxLeftWidth={600}
+        defaultLeftPercent={60}
+        minLeftPercent={20}
+        maxLeftPercent={80}
       />
     </div>
   )
