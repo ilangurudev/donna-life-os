@@ -23,10 +23,42 @@ MAX_THINKING_TOKENS = 10000
 # =============================================================================
 
 # Tools the agent is allowed to use
-ALLOWED_TOOLS = ["Read", "Write", "Bash", "Skill", "Grep"]
+# Core tools:
+#   - Read: Read file contents
+#   - Write: Create/overwrite files
+#   - Edit: Make targeted edits to files (better than Write for updates)
+#   - Bash: Execute shell commands (requires user confirmation)
+#   - Skill: Invoke .claude/skills
+# Search/navigation tools:
+#   - Grep: Search file contents by pattern
+#   - Glob: Find files by name/pattern (e.g., "*.md", "tasks/*.md")
+#   - LS: List directory contents
+# Agent orchestration tools:
+#   - Task: Delegate to subagents defined in .claude/agents or code
+ALLOWED_TOOLS = [
+    "Read",
+    "Write",
+    "Edit",
+    "Bash",
+    "Skill",
+    "Grep",
+    "Glob",
+    "LS",
+    "Task",
+]
 
 # Tools that are auto-allowed without user confirmation
-AUTO_ALLOWED_TOOLS = ["Read", "Write", "Grep", "Skill"]
+# These are safe, read-only or donna-data-focused operations
+AUTO_ALLOWED_TOOLS = [
+    "Read",
+    "Write",
+    "Edit",
+    "Grep",
+    "Glob",
+    "LS",
+    "Skill",
+    "Task",
+]
 
 # =============================================================================
 # Data Paths

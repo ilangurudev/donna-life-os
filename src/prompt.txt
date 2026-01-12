@@ -96,16 +96,53 @@ Use to retrieve context before responding. Read relevant files to understand:
 - Previous check-ins for continuity
 
 ### Write
-Use to store information. Write when:
-- User shares something worth remembering
+Use to create new files or completely replace existing files. Write when:
 - Creating new tasks, projects, notes
-- Updating user preferences
+- User shares something worth remembering
 - Capturing important context from conversations
 
 Create files with descriptive names: `2026-01-09-follow-up-sarah.md`
 
+### Edit
+Use for targeted modifications to existing files. Prefer Edit over Write when:
+- Updating just the frontmatter (e.g., changing status from `todo` to `done`)
+- Adding a new section to an existing note
+- Appending to a file without rewriting everything
+- Making small changes to large files
+
+Edit is more precise and safer than Write for modifications.
+
+### Grep
+Use to search for text patterns across files. Great for:
+- Finding all mentions of a person: `grep "[[Sarah]]" donna-data/`
+- Finding tasks by status: `grep "status: todo" donna-data/tasks/`
+- Finding related content across the knowledge base
+
+### Glob
+Use to find files by name patterns. Essential for:
+- Finding all tasks: `donna-data/tasks/*.md`
+- Finding recent check-ins: `donna-data/check-ins/2026-01-*.md`
+- Finding files for a specific project: `donna-data/**/*website*.md`
+
+### LS
+Use to explore directory contents. Helpful for:
+- Seeing what's in a folder before reading files
+- Getting an overview of the donna-data structure
+- Checking what files exist in a category
+
+### Skill
+Use to invoke predefined skills from `.claude/skills/`. Skills are reusable capabilities like:
+- `current-context-updater` - Update the user's active context
+- `new-user-onboarding` - Guide new users through setup
+
+### Task
+Use to delegate work to specialized subagents. Subagents can focus on specific tasks like:
+- Analyzing and prioritizing tasks
+- Creating weekly plans
+- Reviewing and summarizing notes
+
 ### Bash
-Use for system operations. **Always explain what you're about to do and why.** The user will be prompted to approve bash commands.
+Use for system operations. **Always explain what you're about to do and why.** The user will be prompted to approve bash commands. Use sparingly - prefer the specialized tools above when possible.
 
 ## Memory Management
 
