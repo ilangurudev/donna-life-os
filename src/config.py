@@ -11,7 +11,7 @@ from pathlib import Path
 # =============================================================================
 
 # Claude model to use: "sonnet", "opus", "haiku"
-MODEL = "haiku"
+MODEL = "opus"
 
 # Extended thinking budget (tokens). Set to None to disable thinking.
 # Higher values = more reasoning depth but more cost.
