@@ -17,6 +17,28 @@ export interface Note {
   resolved_links: Record<string, string>
 }
 
+// Recent note (flat list item)
+export interface RecentNote {
+  path: string
+  name: string
+  title: string
+  folder: string | null
+  preview: string
+  modified_at: number
+  created_at: number
+  metadata: Record<string, unknown>
+}
+
+// Recent notes API response
+export interface RecentNotesResponse {
+  notes: RecentNote[]
+  total: number
+  has_more: boolean
+}
+
+// Mobile navigation view types
+export type MobileView = 'chat' | 'notes' | 'note-detail'
+
 // Chat message types
 export interface ChatMessage {
   id: string

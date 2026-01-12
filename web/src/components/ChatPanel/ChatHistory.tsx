@@ -14,6 +14,24 @@ interface ChatHistoryProps {
 export function ChatHistory({ messages, currentMessage, isLoading }: ChatHistoryProps) {
   const { devMode } = useDevMode()
 
+  // Show welcome message if no messages
+  if (messages.length === 0 && !currentMessage && !isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full text-center px-4">
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-donna-purple mb-4">
+          <Bot className="h-8 w-8 text-donna-bg" />
+        </div>
+        <h2 className="text-lg font-semibold text-donna-text mb-2">
+          Hey, I'm Donna
+        </h2>
+        <p className="text-sm text-donna-text-secondary max-w-sm">
+          Your AI-powered life operating system. Tell me what's on your mind,
+          and I'll help you stay organized.
+        </p>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-4">
       {messages.map((message) => (
@@ -52,26 +70,27 @@ function MessageBubble({ message, devMode, isStreaming }: MessageBubbleProps) {
   return (
     <div
       className={clsx(
-        'flex gap-3 animate-fade-in',
+        'flex gap-2 sm:gap-3 animate-fade-in',
         isUser ? 'flex-row-reverse' : ''
       )}
     >
-      {/* Avatar */}
+      {/* Avatar - smaller on mobile */}
       <div
         className={clsx(
-          'flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full',
+          'flex flex-shrink-0 items-center justify-center rounded-full',
+          'h-7 w-7 sm:h-8 sm:w-8',
           isUser ? 'bg-donna-accent' : 'bg-donna-purple'
         )}
       >
         {isUser ? (
-          <User className="h-4 w-4 text-donna-bg" />
+          <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-donna-bg" />
         ) : (
-          <Bot className="h-4 w-4 text-donna-bg" />
+          <Bot className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-donna-bg" />
         )}
       </div>
 
       {/* Content */}
-      <div className={clsx('flex-1 space-y-2', isUser ? 'items-end' : '')}>
+      <div className={clsx('flex-1 space-y-2 min-w-0', isUser ? 'items-end' : '')}>
         {/* Dev mode: Thinking block */}
         {devMode && message.thinking && (
           <ThinkingBlock content={message.thinking} />
@@ -86,13 +105,14 @@ function MessageBubble({ message, devMode, isStreaming }: MessageBubbleProps) {
         {message.content && (
           <div
             className={clsx(
-              'rounded-2xl px-4 py-2.5 max-w-[85%]',
+              'rounded-2xl px-3 py-2 sm:px-4 sm:py-2.5',
+              'max-w-[90%] sm:max-w-[85%]',
               isUser
                 ? 'bg-donna-accent text-donna-bg ml-auto'
                 : 'bg-donna-surface text-donna-text'
             )}
           >
-            <p className="whitespace-pre-wrap text-sm leading-relaxed">
+            <p className="whitespace-pre-wrap text-sm leading-relaxed break-words">
               {message.content}
               {isStreaming && (
                 <span className="inline-block w-1.5 h-4 bg-donna-accent ml-0.5 animate-pulse-subtle" />

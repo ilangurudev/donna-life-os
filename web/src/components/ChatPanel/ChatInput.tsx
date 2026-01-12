@@ -16,7 +16,9 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
     const textarea = textareaRef.current
     if (textarea) {
       textarea.style.height = 'auto'
-      textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`
+      // Limit height to 120px on mobile, 200px on desktop
+      const maxHeight = window.innerWidth < 640 ? 120 : 200
+      textarea.style.height = `${Math.min(textarea.scrollHeight, maxHeight)}px`
     }
   }, [message])
 
@@ -25,19 +27,23 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
     if (trimmed && !disabled) {
       onSend(trimmed)
       setMessage('')
+      // Reset textarea height
+      if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto'
+      }
     }
   }
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    // Submit on Enter (without Shift)
-    if (e.key === 'Enter' && !e.shiftKey) {
+    // Submit on Enter (without Shift) - only on desktop
+    if (e.key === 'Enter' && !e.shiftKey && window.innerWidth >= 640) {
       e.preventDefault()
       handleSubmit()
     }
   }
 
   return (
-    <div className="flex items-end gap-3">
+    <div className="flex items-end gap-2 sm:gap-3">
       <div className="relative flex-1">
         <textarea
           ref={textareaRef}
@@ -48,17 +54,20 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
           disabled={disabled}
           rows={1}
           className={clsx(
-            'w-full resize-none rounded-xl border bg-donna-surface px-4 py-3 pr-12',
+            'w-full resize-none rounded-xl border bg-donna-surface',
+            'px-3 py-2.5 sm:px-4 sm:py-3',
+            'text-base sm:text-sm', // Larger text on mobile to prevent zoom
             'text-donna-text placeholder:text-donna-text-muted',
             'border-donna-border focus:border-donna-accent focus:outline-none',
             'transition-colors duration-150',
             disabled && 'opacity-50 cursor-not-allowed'
           )}
+          style={{ fontSize: '16px' }} // Prevent iOS zoom on focus
         />
         
-        {/* Character count for long messages */}
+        {/* Character count for long messages - hidden on mobile */}
         {message.length > 500 && (
-          <span className="absolute bottom-2 right-14 text-xs text-donna-text-muted">
+          <span className="hidden sm:block absolute bottom-2 right-3 text-xs text-donna-text-muted">
             {message.length}
           </span>
         )}
@@ -68,12 +77,14 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
         onClick={handleSubmit}
         disabled={disabled || !message.trim()}
         className={clsx(
-          'flex h-11 w-11 items-center justify-center rounded-xl',
+          'flex items-center justify-center rounded-xl touch-target',
+          'h-11 w-11 sm:h-11 sm:w-11',
           'bg-donna-accent text-donna-bg',
-          'hover:bg-donna-accent-hover transition-colors',
+          'hover:bg-donna-accent-hover active:bg-donna-accent-hover transition-colors',
           'disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-donna-accent'
         )}
-        title="Send message (Enter)"
+        title="Send message"
+        aria-label="Send message"
       >
         <Send className="h-5 w-5" />
       </button>

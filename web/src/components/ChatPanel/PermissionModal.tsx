@@ -11,8 +11,8 @@ export function PermissionModal({ request, onAllow, onDeny }: PermissionModalPro
   const command = request.input.command as string | undefined
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 animate-fade-in">
-      <div className="w-full max-w-lg mx-4 rounded-xl bg-donna-bg-secondary border border-donna-border shadow-2xl animate-slide-in">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 animate-fade-in">
+      <div className="w-full sm:max-w-lg mx-0 sm:mx-4 rounded-t-xl sm:rounded-xl bg-donna-bg-secondary border border-donna-border shadow-2xl animate-slide-in pb-safe-bottom">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-donna-border px-4 py-3">
           <div className="flex items-center gap-2 text-donna-yellow">
@@ -21,15 +21,16 @@ export function PermissionModal({ request, onAllow, onDeny }: PermissionModalPro
           </div>
           <button
             onClick={onDeny}
-            className="text-donna-text-muted hover:text-donna-text transition-colors"
+            className="text-donna-text-muted hover:text-donna-text transition-colors touch-target flex items-center justify-center"
+            aria-label="Close"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-4 space-y-4">
-          <p className="text-donna-text">
+        <div className="p-4 space-y-4 max-h-[50vh] overflow-y-auto">
+          <p className="text-donna-text text-sm sm:text-base">
             Donna wants to execute a <strong>{request.tool}</strong> command:
           </p>
 
@@ -39,19 +40,19 @@ export function PermissionModal({ request, onAllow, onDeny }: PermissionModalPro
                 <Terminal className="h-4 w-4" />
                 <span className="text-xs font-medium">Command</span>
               </div>
-              <pre className="text-sm font-mono text-donna-text whitespace-pre-wrap break-all">
+              <pre className="text-xs sm:text-sm font-mono text-donna-text whitespace-pre-wrap break-all">
                 {command}
               </pre>
             </div>
           )}
 
           {!command && (
-            <pre className="rounded-lg bg-donna-bg-tertiary p-3 text-sm font-mono text-donna-text overflow-x-auto">
+            <pre className="rounded-lg bg-donna-bg-tertiary p-3 text-xs sm:text-sm font-mono text-donna-text overflow-x-auto">
               {JSON.stringify(request.input, null, 2)}
             </pre>
           )}
 
-          <p className="text-sm text-donna-text-muted">
+          <p className="text-xs sm:text-sm text-donna-text-muted">
             Review the command above and decide whether to allow it to run.
           </p>
         </div>
@@ -60,13 +61,13 @@ export function PermissionModal({ request, onAllow, onDeny }: PermissionModalPro
         <div className="flex gap-3 border-t border-donna-border p-4">
           <button
             onClick={onDeny}
-            className="flex-1 rounded-lg border border-donna-border px-4 py-2.5 text-sm font-medium text-donna-text hover:bg-donna-surface transition-colors"
+            className="flex-1 rounded-xl border border-donna-border px-4 py-3 sm:py-2.5 text-sm font-medium text-donna-text hover:bg-donna-surface active:bg-donna-surface transition-colors touch-target"
           >
             Deny
           </button>
           <button
             onClick={onAllow}
-            className="flex-1 rounded-lg bg-donna-accent px-4 py-2.5 text-sm font-medium text-donna-bg hover:bg-donna-accent-hover transition-colors"
+            className="flex-1 rounded-xl bg-donna-accent px-4 py-3 sm:py-2.5 text-sm font-medium text-donna-bg hover:bg-donna-accent-hover active:bg-donna-accent-hover transition-colors touch-target"
           >
             Allow
           </button>

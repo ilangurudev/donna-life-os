@@ -4,12 +4,13 @@ Notes REST API routes.
 Provides endpoints for listing and reading notes from donna-data.
 """
 
+import os
 from pathlib import Path
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 
-from ..utils.markdown import build_file_tree, parse_note, resolve_wiki_link
+from ..utils.markdown import build_file_tree, parse_note, resolve_wiki_link, parse_frontmatter
 
 # Import config - handle both package and direct execution
 try:
@@ -40,6 +41,84 @@ async def list_notes() -> dict[str, Any]:
         }
     
     return build_file_tree(DONNA_DATA_DIR)
+
+
+@router.get("/recent")
+async def list_recent_notes(
+    limit: int = Query(default=50, ge=1, le=500),
+    offset: int = Query(default=0, ge=0),
+) -> dict[str, Any]:
+    """
+    Get a flat list of notes sorted by modification time (most recent first).
+    
+    This is optimized for mobile interfaces and scenarios with many notes.
+    
+    Args:
+        limit: Maximum number of notes to return (default 50, max 500)
+        offset: Number of notes to skip for pagination
+        
+    Returns:
+        List of notes with metadata, sorted by modification time
+    """
+    if not DONNA_DATA_DIR.exists():
+        return {
+            "notes": [],
+            "total": 0,
+            "has_more": False,
+        }
+    
+    # Collect all markdown files with their modification times
+    all_notes = []
+    for md_file in DONNA_DATA_DIR.rglob("*.md"):
+        # Skip hidden files
+        if any(part.startswith(".") for part in md_file.parts):
+            continue
+        
+        try:
+            stat = md_file.stat()
+            rel_path = str(md_file.relative_to(DONNA_DATA_DIR))
+            
+            # Get parent folder name for context
+            parent = md_file.parent
+            folder = parent.name if parent != DONNA_DATA_DIR else None
+            
+            # Parse frontmatter for title and metadata
+            content = md_file.read_text()
+            frontmatter, body = parse_frontmatter(content)
+            
+            # Get title from frontmatter or filename
+            title = frontmatter.get("title") or md_file.stem.replace("-", " ").title()
+            
+            # Get a preview (first 100 chars of content, stripped)
+            preview = body.strip()[:150].replace("\n", " ").strip()
+            if len(body.strip()) > 150:
+                preview += "..."
+            
+            all_notes.append({
+                "path": rel_path,
+                "name": md_file.stem,
+                "title": title,
+                "folder": folder,
+                "preview": preview,
+                "modified_at": stat.st_mtime,
+                "created_at": stat.st_ctime,
+                "metadata": frontmatter,
+            })
+        except Exception:
+            # Skip files we can't read
+            continue
+    
+    # Sort by modification time (most recent first)
+    all_notes.sort(key=lambda x: x["modified_at"], reverse=True)
+    
+    total = len(all_notes)
+    paginated = all_notes[offset:offset + limit]
+    
+    return {
+        "notes": paginated,
+        "total": total,
+        "has_more": offset + limit < total,
+    }
 
 
 @router.get("/{path:path}")

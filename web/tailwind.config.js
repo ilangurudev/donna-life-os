@@ -33,9 +33,17 @@ export default {
         sans: ['Inter', 'system-ui', 'sans-serif'],
         mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
       },
+      spacing: {
+        'safe-top': 'var(--safe-area-inset-top)',
+        'safe-bottom': 'var(--safe-area-inset-bottom)',
+        'safe-left': 'var(--safe-area-inset-left)',
+        'safe-right': 'var(--safe-area-inset-right)',
+      },
       animation: {
         'fade-in': 'fadeIn 0.2s ease-out',
         'slide-in': 'slideIn 0.2s ease-out',
+        'slide-in-right': 'slideInRight 0.25s ease-out',
+        'slide-in-left': 'slideInLeft 0.25s ease-out',
         'pulse-subtle': 'pulseSubtle 2s ease-in-out infinite',
       },
       keyframes: {
@@ -47,10 +55,22 @@ export default {
           '0%': { opacity: '0', transform: 'translateY(-10px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
+        slideInRight: {
+          '0%': { transform: 'translateX(100%)', opacity: '0' },
+          '100%': { transform: 'translateX(0)', opacity: '1' },
+        },
+        slideInLeft: {
+          '0%': { transform: 'translateX(-100%)', opacity: '0' },
+          '100%': { transform: 'translateX(0)', opacity: '1' },
+        },
         pulseSubtle: {
           '0%, 100%': { opacity: '1' },
           '50%': { opacity: '0.7' },
         },
+      },
+      screens: {
+        'xs': '375px',
+        // Default: sm: 640px, md: 768px, lg: 1024px, xl: 1280px, 2xl: 1536px
       },
     },
   },
