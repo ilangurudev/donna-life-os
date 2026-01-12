@@ -22,10 +22,14 @@ from claude_agent_sdk import (
 # Import core - handle both package and direct execution
 try:
     from ...core import DonnaAgent, PermissionRequest
+    from ..auth.middleware import verify_websocket_auth
+    from ..auth.config import get_auth_config
 except ImportError:
     import sys
     sys.path.insert(0, str(Path(__file__).parent.parent.parent))
     from core import DonnaAgent, PermissionRequest
+    from web.auth.middleware import verify_websocket_auth
+    from web.auth.config import get_auth_config
 
 
 router = APIRouter(tags=["chat"])
@@ -167,6 +171,14 @@ async def chat_websocket(websocket: WebSocket):
     - Server sends: {"type": "session_end", "stats": {...}}
     - Server sends: {"type": "error", "message": "..."}
     """
+    # Check authentication before accepting the connection
+    auth_config = get_auth_config()
+    if auth_config.enabled:
+        user = await verify_websocket_auth(websocket)
+        if not user:
+            await websocket.close(code=4001, reason="Authentication required")
+            return
+    
     await websocket.accept()
     
     permission_handler = WebSocketPermissionHandler(websocket)

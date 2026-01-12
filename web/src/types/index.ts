@@ -84,3 +84,23 @@ export interface PermissionRequest {
   tool: string
   input: Record<string, unknown>
 }
+
+// Authentication types
+export interface User {
+  email: string
+  name: string
+  picture: string
+}
+
+export interface AuthStatus {
+  auth_enabled: boolean
+  authenticated: boolean
+  user: User | null
+}
+
+export interface AuthState {
+  status: 'loading' | 'authenticated' | 'unauthenticated'
+  authEnabled: boolean
+  user: User | null
+  error: string | null
+}

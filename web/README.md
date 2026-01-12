@@ -16,6 +16,7 @@ A beautiful web interface for the Donna Life OS agent.
   - Markdown rendering with syntax highlighting
 - **Live updates**: Notes automatically refresh when modified by the agent
 - **Permission handling**: Modal prompts for tool execution approval
+- **Google OAuth authentication**: Secure access when deployed to a web service
 
 ## Development
 
@@ -50,6 +51,63 @@ npm run build
 ```
 
 The built files go to `web/dist/`. The FastAPI backend will automatically serve them.
+
+## Authentication Setup
+
+When deploying to a web service, enable Google OAuth to protect your notes and chat.
+
+### 1. Create Google OAuth Credentials
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+2. Create a new project (or select existing)
+3. Configure OAuth consent screen:
+   - User type: External (or Internal for Google Workspace)
+   - Add your email to test users during development
+4. Create OAuth 2.0 Client ID:
+   - Application type: Web application
+   - Add authorized redirect URI: `https://your-domain.com/api/auth/callback/google`
+5. Copy the Client ID and Client Secret
+
+### 2. Configure Environment Variables
+
+Copy `.env.example` to `.env` and configure:
+
+```bash
+# Enable authentication
+AUTH_ENABLED=true
+
+# Google OAuth credentials
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+
+# Generate a secure random string (e.g., openssl rand -hex 32)
+SESSION_SECRET_KEY=your-secure-random-string
+
+# Your production URL
+AUTH_BASE_URL=https://your-domain.com
+
+# Enable secure cookies for HTTPS
+AUTH_HTTPS_ONLY=true
+
+# Optional: Restrict to specific email domains
+ALLOWED_EMAIL_DOMAINS=yourdomain.com,company.org
+```
+
+### 3. What's Protected
+
+When `AUTH_ENABLED=true`:
+
+- **All API endpoints** (`/api/*`) require authentication (except `/api/auth/*` and `/api/health`)
+- **WebSocket connections** (`/ws/*`) require authentication
+- **Frontend** shows a login page for unauthenticated users
+- **Sessions** are stored in secure HTTP-only cookies (7 days by default)
+
+### Security Features
+
+- **HTTP-only cookies**: Session tokens can't be accessed by JavaScript (XSS protection)
+- **SameSite=Lax cookies**: Protection against CSRF while allowing OAuth redirects
+- **Email domain restriction**: Optionally limit access to specific email domains
+- **Secure cookies**: When `AUTH_HTTPS_ONLY=true`, cookies only sent over HTTPS
 
 ## Tech Stack
 

@@ -11,3 +11,8 @@ wheels/
 
 donna-data/
 .donna_history
+
+# Environment files (contain secrets)
+.env
+.env.local
+.env.production

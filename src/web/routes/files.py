@@ -15,10 +15,14 @@ from watchdog.events import FileSystemEventHandler, FileSystemEvent
 # Import config - handle both package and direct execution
 try:
     from ...config import DONNA_DATA_DIR
+    from ..auth.middleware import verify_websocket_auth
+    from ..auth.config import get_auth_config
 except ImportError:
     import sys
     sys.path.insert(0, str(Path(__file__).parent.parent.parent))
     from config import DONNA_DATA_DIR
+    from web.auth.middleware import verify_websocket_auth
+    from web.auth.config import get_auth_config
 
 
 router = APIRouter(tags=["files"])
@@ -171,6 +175,14 @@ async def file_watch_websocket(websocket: WebSocket):
     - {"type": "file_deleted", "path": "relative/path.md"}
     - {"type": "connected", "watching": "donna-data"}
     """
+    # Check authentication before accepting the connection
+    auth_config = get_auth_config()
+    if auth_config.enabled:
+        user = await verify_websocket_auth(websocket)
+        if not user:
+            await websocket.close(code=4001, reason="Authentication required")
+            return
+    
     await websocket.accept()
     
     # Add to connected clients

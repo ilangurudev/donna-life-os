@@ -1,5 +1,9 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
+import { useAuthStore } from '../stores/useAuthStore'
 import type { FileEvent } from '../types'
+
+// WebSocket close codes
+const WS_CLOSE_AUTH_REQUIRED = 4001
 
 interface UseFileWatcherResult {
   isConnected: boolean
@@ -11,6 +15,7 @@ export function useFileWatcher(): UseFileWatcherResult {
   const [lastChange, setLastChange] = useState<FileEvent | null>(null)
   const wsRef = useRef<WebSocket | null>(null)
   const reconnectTimeoutRef = useRef<number | null>(null)
+  const { checkAuth } = useAuthStore()
 
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) return
@@ -39,11 +44,18 @@ export function useFileWatcher(): UseFileWatcherResult {
       }
     }
 
-    ws.onclose = () => {
+    ws.onclose = (event) => {
       setIsConnected(false)
-      console.log('[FileWatcher] Disconnected, reconnecting...')
+      console.log('[FileWatcher] Disconnected', event.code, event.reason)
       
-      // Reconnect after 2 seconds
+      // Handle authentication failure
+      if (event.code === WS_CLOSE_AUTH_REQUIRED) {
+        console.log('[FileWatcher] Authentication required, refreshing auth state')
+        checkAuth()
+        return // Don't reconnect - auth UI will handle it
+      }
+      
+      // Reconnect after 2 seconds (for non-auth failures)
       reconnectTimeoutRef.current = window.setTimeout(() => {
         connect()
       }, 2000)
@@ -52,7 +64,7 @@ export function useFileWatcher(): UseFileWatcherResult {
     ws.onerror = (error) => {
       console.error('[FileWatcher] Error:', error)
     }
-  }, [])
+  }, [checkAuth])
 
   useEffect(() => {
     connect()
