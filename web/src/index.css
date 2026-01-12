@@ -261,7 +261,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
 /* Mobile search input */
 .mobile-search {
   @apply w-full bg-donna-surface border border-donna-border rounded-xl
-         px-4 py-3 text-donna-text placeholder:text-donna-text-muted
+         pl-10 pr-4 py-3 text-donna-text placeholder:text-donna-text-muted
          focus:outline-none focus:border-donna-accent;
 }
 

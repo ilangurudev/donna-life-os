@@ -60,7 +60,7 @@ export function RecentNotesList({
             placeholder="Search notes..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="mobile-search pl-10"
+            className="mobile-search"
           />
         </div>
         {totalCount > 0 && (
