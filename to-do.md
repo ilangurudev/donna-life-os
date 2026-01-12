@@ -6,3 +6,4 @@
 6. permissions bash
 7. No notes are lost
 8. current context skill
+9. app updates current context but not otiginal file
