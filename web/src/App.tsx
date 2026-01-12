@@ -48,7 +48,7 @@ function App() {
           />
         }
         right={<ChatPanel />}
-        defaultLeftPercent={60}
+        defaultLeftPercent={40}
         minLeftPercent={20}
         maxLeftPercent={80}
       />
