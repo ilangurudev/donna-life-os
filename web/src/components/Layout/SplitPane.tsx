@@ -4,19 +4,22 @@ import clsx from 'clsx'
 interface SplitPaneProps {
   left: ReactNode
   right: ReactNode
-  defaultLeftWidth?: number
-  minLeftWidth?: number
-  maxLeftWidth?: number
+  /** Default width as percentage (0-100) */
+  defaultLeftPercent?: number
+  /** Minimum width as percentage (0-100) */
+  minLeftPercent?: number
+  /** Maximum width as percentage (0-100) */
+  maxLeftPercent?: number
 }
 
 export function SplitPane({
   left,
   right,
-  defaultLeftWidth = 350,
-  minLeftWidth = 200,
-  maxLeftWidth = 600,
+  defaultLeftPercent = 60,
+  minLeftPercent = 20,
+  maxLeftPercent = 80,
 }: SplitPaneProps) {
-  const [leftWidth, setLeftWidth] = useState(defaultLeftWidth)
+  const [leftPercent, setLeftPercent] = useState(defaultLeftPercent)
   const [isResizing, setIsResizing] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -34,10 +37,12 @@ export function SplitPane({
       if (!containerRef.current) return
 
       const containerRect = containerRef.current.getBoundingClientRect()
-      const newWidth = e.clientX - containerRect.left
+      const containerWidth = containerRect.width
+      const mouseX = e.clientX - containerRect.left
+      const newPercent = (mouseX / containerWidth) * 100
 
-      if (newWidth >= minLeftWidth && newWidth <= maxLeftWidth) {
-        setLeftWidth(newWidth)
+      if (newPercent >= minLeftPercent && newPercent <= maxLeftPercent) {
+        setLeftPercent(newPercent)
       }
     }
 
@@ -52,20 +57,20 @@ export function SplitPane({
       document.removeEventListener('mousemove', handleMouseMove)
       document.removeEventListener('mouseup', handleMouseUp)
     }
-  }, [isResizing, minLeftWidth, maxLeftWidth])
+  }, [isResizing, minLeftPercent, maxLeftPercent])
 
   return (
     <div
       ref={containerRef}
       className="flex h-full w-full select-none"
     >
-      {/* Left panel */}
+      {/* Left panel (Notes) */}
       <div
         className={clsx(
           'h-full flex-shrink-0 overflow-hidden transition-all duration-200',
           isCollapsed ? 'w-0' : ''
         )}
-        style={{ width: isCollapsed ? 0 : leftWidth }}
+        style={{ width: isCollapsed ? 0 : `${leftPercent}%` }}
       >
         {left}
       </div>
@@ -101,7 +106,7 @@ export function SplitPane({
         </button>
       </div>
 
-      {/* Right panel */}
+      {/* Right panel (Chat) */}
       <div className="h-full flex-1 overflow-hidden">{right}</div>
     </div>
   )

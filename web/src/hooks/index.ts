@@ -1,3 +1,4 @@
 export { useFileWatcher } from './useFileWatcher'
 export { useChatWebSocket } from './useChatWebSocket'
-export { useFileTree, useNote, useNoteRefresh } from './useNotes'
+export { useFileTree, useNote, useNoteRefresh, useRecentNotes } from './useNotes'
+export { useIsMobile } from './useIsMobile'

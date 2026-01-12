@@ -37,14 +37,14 @@ export function FrontmatterTable({ frontmatter }: FrontmatterTableProps) {
   if (entries.length === 0) return null
 
   return (
-    <div className="frontmatter-table">
+    <div className="frontmatter-table text-xs sm:text-sm">
       {entries.map(([key, value]) => (
-        <div key={key} className="frontmatter-row">
-          <div className="frontmatter-key flex items-center gap-2">
+        <div key={key} className="frontmatter-row flex-col sm:flex-row gap-1 sm:gap-0">
+          <div className="frontmatter-key flex items-center gap-2 w-full sm:w-32">
             {renderIcon(key)}
             <span>{formatKey(key)}</span>
           </div>
-          <div className="frontmatter-value">
+          <div className="frontmatter-value pl-5 sm:pl-0">
             {renderValue(key, value)}
           </div>
         </div>

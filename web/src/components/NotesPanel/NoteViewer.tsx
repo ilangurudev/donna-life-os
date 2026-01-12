@@ -75,14 +75,14 @@ export function NoteViewer({ note, onNavigate }: NoteViewerProps) {
   }
 
   return (
-    <div className="p-4 animate-fade-in">
+    <div className="p-3 sm:p-4 animate-fade-in">
       {/* Frontmatter */}
       {Object.keys(note.frontmatter).length > 0 && (
         <FrontmatterTable frontmatter={note.frontmatter} />
       )}
 
       {/* Markdown content */}
-      <div className="markdown-content">
+      <div className="markdown-content text-sm sm:text-base">
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeRaw]}

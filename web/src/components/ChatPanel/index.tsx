@@ -6,8 +6,13 @@ import { PermissionModal } from './PermissionModal'
 import { DevModeToggle } from '../Layout/DevModeToggle'
 import { useChatWebSocket } from '../../hooks/useChatWebSocket'
 import { useChatStore } from '../../stores/useChatStore'
+import clsx from 'clsx'
 
-export function ChatPanel() {
+interface ChatPanelProps {
+  isMobile?: boolean
+}
+
+export function ChatPanel({ isMobile = false }: ChatPanelProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const { sendMessage, respondToPermission } = useChatWebSocket()
   const { messages, currentMessage, isConnected, isLoading, permissionRequest, sessionStats } = useChatStore()
@@ -21,8 +26,11 @@ export function ChatPanel() {
 
   return (
     <div className="flex h-full flex-col bg-donna-bg">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-donna-border px-4 py-3">
+      {/* Header - fixed on mobile */}
+      <div className={clsx(
+        'flex items-center justify-between border-b border-donna-border px-4 py-3',
+        isMobile && 'mobile-header'
+      )}>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <MessageCircle className="h-5 w-5 text-donna-cyan" />
@@ -34,21 +42,21 @@ export function ChatPanel() {
             {isConnected ? (
               <>
                 <Wifi className="h-3.5 w-3.5 text-donna-green" />
-                <span className="text-xs text-donna-green">Connected</span>
+                <span className="text-xs text-donna-green hidden sm:inline">Connected</span>
               </>
             ) : (
               <>
                 <WifiOff className="h-3.5 w-3.5 text-donna-red" />
-                <span className="text-xs text-donna-red">Disconnected</span>
+                <span className="text-xs text-donna-red hidden sm:inline">Disconnected</span>
               </>
             )}
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          {/* Session stats */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Session stats - hide on small screens */}
           {sessionStats && (
-            <div className="flex items-center gap-3 text-xs text-donna-text-muted">
+            <div className="hidden sm:flex items-center gap-3 text-xs text-donna-text-muted">
               {sessionStats.turns !== undefined && (
                 <span>Turns: {sessionStats.turns}</span>
               )}
@@ -62,10 +70,13 @@ export function ChatPanel() {
         </div>
       </div>
 
-      {/* Messages */}
+      {/* Messages - with proper padding for mobile */}
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto px-4 py-4 space-y-4"
+        className={clsx(
+          'flex-1 overflow-y-auto px-3 sm:px-4 py-4 space-y-4',
+          isMobile && 'mobile-content'
+        )}
       >
         <ChatHistory
           messages={messages}
@@ -74,8 +85,11 @@ export function ChatPanel() {
         />
       </div>
 
-      {/* Input */}
-      <div className="border-t border-donna-border p-4">
+      {/* Input - with safe area padding on mobile */}
+      <div className={clsx(
+        'border-t border-donna-border p-3 sm:p-4',
+        isMobile && 'pb-[calc(72px+var(--safe-area-inset-bottom))]'
+      )}>
         <ChatInput
           onSend={sendMessage}
           disabled={!isConnected || isLoading}
