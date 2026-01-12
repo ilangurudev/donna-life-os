@@ -1,0 +1,146 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #45475a;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6c7086;
+}
+
+/* Selection color */
+::selection {
+  background: rgba(137, 180, 250, 0.3);
+}
+
+/* Code block styling */
+pre code.hljs {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+}
+
+/* Markdown content styles */
+.markdown-content {
+  @apply text-donna-text leading-relaxed;
+}
+
+.markdown-content h1 {
+  @apply text-2xl font-bold mb-4 text-donna-text;
+}
+
+.markdown-content h2 {
+  @apply text-xl font-semibold mb-3 mt-6 text-donna-text;
+}
+
+.markdown-content h3 {
+  @apply text-lg font-medium mb-2 mt-4 text-donna-text;
+}
+
+.markdown-content p {
+  @apply mb-4;
+}
+
+.markdown-content ul, .markdown-content ol {
+  @apply mb-4 pl-6;
+}
+
+.markdown-content ul {
+  @apply list-disc;
+}
+
+.markdown-content ol {
+  @apply list-decimal;
+}
+
+.markdown-content li {
+  @apply mb-1;
+}
+
+.markdown-content a {
+  @apply text-donna-accent hover:text-donna-accent-hover underline;
+}
+
+.markdown-content code:not(pre code) {
+  @apply bg-donna-surface px-1.5 py-0.5 rounded text-sm font-mono text-donna-pink;
+}
+
+.markdown-content pre {
+  @apply mb-4 rounded-lg overflow-x-auto;
+}
+
+.markdown-content blockquote {
+  @apply border-l-4 border-donna-accent pl-4 my-4 italic text-donna-text-secondary;
+}
+
+.markdown-content hr {
+  @apply border-donna-border my-6;
+}
+
+.markdown-content table {
+  @apply w-full mb-4 border-collapse;
+}
+
+.markdown-content th, .markdown-content td {
+  @apply border border-donna-border px-3 py-2 text-left;
+}
+
+.markdown-content th {
+  @apply bg-donna-surface font-medium;
+}
+
+/* Wiki link styling */
+.wiki-link {
+  @apply text-donna-cyan hover:text-donna-accent cursor-pointer 
+         bg-donna-surface/50 px-1 rounded transition-colors;
+}
+
+.wiki-link:hover {
+  @apply bg-donna-surface;
+}
+
+/* Frontmatter property table */
+.frontmatter-table {
+  @apply bg-donna-bg-secondary rounded-lg p-3 mb-4 text-sm;
+}
+
+.frontmatter-row {
+  @apply flex py-1.5 border-b border-donna-border/30 last:border-0;
+}
+
+.frontmatter-key {
+  @apply w-32 text-donna-text-muted font-medium;
+}
+
+.frontmatter-value {
+  @apply flex-1 text-donna-text-secondary;
+}
+
+/* Smooth transitions */
+* {
+  @apply transition-colors duration-150;
+}
+
+/* Focus styles */
+button:focus-visible, input:focus-visible, textarea:focus-visible {
+  @apply outline-none ring-2 ring-donna-accent ring-offset-2 ring-offset-donna-bg;
+}
+
+/* Panel resize handle */
+.resize-handle {
+  @apply w-1 cursor-col-resize bg-transparent hover:bg-donna-accent/50 
+         active:bg-donna-accent transition-colors;
+}

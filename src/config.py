@@ -11,7 +11,7 @@ from pathlib import Path
 # =============================================================================
 
 # Claude model to use: "sonnet", "opus", "haiku"
-MODEL = "opus"
+MODEL = "haiku"
 
 # Extended thinking budget (tokens). Set to None to disable thinking.
 # Higher values = more reasoning depth but more cost.
@@ -26,7 +26,7 @@ MAX_THINKING_TOKENS = 10000
 ALLOWED_TOOLS = ["Read", "Write", "Bash", "Skill", "Grep"]
 
 # Tools that are auto-allowed without user confirmation
-AUTO_ALLOWED_TOOLS = ["Read", "Write", "Grep"]
+AUTO_ALLOWED_TOOLS = ["Read", "Write", "Grep", "Skill"]
 
 # =============================================================================
 # Data Paths
