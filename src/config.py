@@ -35,6 +35,8 @@ MAX_THINKING_TOKENS = 10000
 #   - LS: List directory contents
 # Agent orchestration tools:
 #   - Task: Delegate to subagents defined in .claude/agents or code
+# Internal tracking tools:
+#   - TodoRead/TodoWrite: Agent's internal task tracking (NOT user tasks)
 ALLOWED_TOOLS = [
     "Read",
     "Write",
@@ -45,6 +47,8 @@ ALLOWED_TOOLS = [
     "Glob",
     "LS",
     "Task",
+    "TodoRead",
+    "TodoWrite",
 ]
 
 # Tools that are auto-allowed without user confirmation
@@ -58,6 +62,8 @@ AUTO_ALLOWED_TOOLS = [
     "LS",
     "Skill",
     "Task",
+    "TodoRead",
+    "TodoWrite",
 ]
 
 # =============================================================================

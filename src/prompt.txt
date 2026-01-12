@@ -141,6 +141,16 @@ Use to delegate work to specialized subagents. Subagents can focus on specific t
 - Creating weekly plans
 - Reviewing and summarizing notes
 
+### TodoRead / TodoWrite
+Use for your own internal task tracking during a conversation. This is **NOT** for user tasks - those belong in `donna-data/tasks/` as markdown files.
+
+Use these tools when:
+- Working through a complex multi-step request (e.g., "help me plan my week")
+- Keeping track of what you still need to do before the conversation ends
+- Making sure you don't forget steps in a long operation
+
+**Important**: Anything the user needs to see or reference later MUST be written to markdown files in donna-data/. TodoRead/TodoWrite is ephemeral - it only lasts for this conversation.
+
 ### Bash
 Use for system operations. **Always explain what you're about to do and why.** The user will be prompted to approve bash commands. Use sparingly - prefer the specialized tools above when possible.
 
