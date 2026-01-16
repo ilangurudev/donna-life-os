@@ -27,8 +27,13 @@ app = FastAPI(
 # Get auth configuration
 auth_config = get_auth_config()
 
+# Auth middleware (checks authentication on protected routes)
+# Added first so it runs AFTER session middleware in the request flow
+app.add_middleware(AuthMiddleware)
+
 # Session middleware (required for OAuth)
-# Must be added before auth middleware
+# Added after auth middleware so it runs BEFORE auth in the request flow
+# (Starlette middleware order: last added = first to process request)
 app.add_middleware(
     SessionMiddleware,
     secret_key=auth_config.session_secret_key,
@@ -37,9 +42,6 @@ app.add_middleware(
     same_site="lax",  # Protects against CSRF while allowing OAuth redirects
     https_only=os.getenv("AUTH_HTTPS_ONLY", "false").lower() == "true",
 )
-
-# Auth middleware (checks authentication on protected routes)
-app.add_middleware(AuthMiddleware)
 
 # CORS middleware for development
 # In production with auth enabled, you may want to restrict origins

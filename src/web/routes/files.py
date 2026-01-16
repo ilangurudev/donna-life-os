@@ -180,6 +180,9 @@ async def file_watch_websocket(websocket: WebSocket):
     if auth_config.enabled:
         user = await verify_websocket_auth(websocket)
         if not user:
+            # Silently reject - this is expected when user isn't logged in
+            # Accept then close to avoid noisy 403 logs
+            await websocket.accept()
             await websocket.close(code=4001, reason="Authentication required")
             return
     

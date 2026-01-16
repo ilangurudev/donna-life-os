@@ -335,12 +335,45 @@ To make Donna aware of new data types:
 
 ## Running and Testing
 
-```bash
-# Run the CLI
-uv run python -m src.cli
+### Prerequisites
 
-# Or directly
-python src/cli.py
+- Python 3.12+
+- [uv](https://docs.astral.sh/uv/) package manager
+- Node.js 18+ (for web frontend)
+- `ANTHROPIC_API_KEY` environment variable
+
+### Installation
+
+```bash
+# Install Python dependencies
+uv sync
+
+# Install frontend dependencies
+cd web && npm install && cd ..
+```
+
+### Running the Web Interface (Dev Servers)
+
+Start **both** servers in separate terminals:
+
+**Terminal 1 - Backend (FastAPI on port 8000)**:
+```bash
+uv run uvicorn src.web.main:app --reload --port 8000
+```
+
+**Terminal 2 - Frontend (Vite on port 5173)**:
+```bash
+cd web && npm run dev
+```
+
+Then open http://localhost:5173
+
+### Running the CLI
+
+For the terminal interface (no web server needed):
+
+```bash
+uv run python -m src.cli
 ```
 
 ---
