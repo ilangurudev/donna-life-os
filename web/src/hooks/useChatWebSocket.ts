@@ -1,7 +1,11 @@
 import { useEffect, useRef, useCallback } from 'react'
 import { useChatStore } from '../stores/useChatStore'
+import { useAuthStore } from '../stores/useAuthStore'
 import { useDevMode } from '../stores/useDevMode'
 import type { ChatEvent } from '../types'
+
+// WebSocket close codes
+const WS_CLOSE_AUTH_REQUIRED = 4001
 
 export function useChatWebSocket() {
   const wsRef = useRef<WebSocket | null>(null)
@@ -18,6 +22,8 @@ export function useChatWebSocket() {
     setSessionStats,
     setPermissionRequest,
   } = useChatStore()
+
+  const { checkAuth } = useAuthStore()
 
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) return
@@ -79,9 +85,16 @@ export function useChatWebSocket() {
       }
     }
 
-    ws.onclose = () => {
+    ws.onclose = (event) => {
       setConnected(false)
-      console.log('[Chat] Disconnected')
+      console.log('[Chat] Disconnected', event.code, event.reason)
+      
+      // Handle authentication failure
+      if (event.code === WS_CLOSE_AUTH_REQUIRED) {
+        console.log('[Chat] Authentication required, refreshing auth state')
+        // Re-check auth status - this will update the UI to show login if needed
+        checkAuth()
+      }
     }
 
     ws.onerror = (error) => {
@@ -97,6 +110,7 @@ export function useChatWebSocket() {
     finalizeAssistantMessage,
     setSessionStats,
     setPermissionRequest,
+    checkAuth,
   ])
 
   const sendMessage = useCallback((content: string) => {

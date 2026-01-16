@@ -4,6 +4,7 @@ import { ChatHistory } from './ChatHistory'
 import { ChatInput } from './ChatInput'
 import { PermissionModal } from './PermissionModal'
 import { DevModeToggle } from '../Layout/DevModeToggle'
+import { UserMenu } from '../Auth'
 import { useChatWebSocket } from '../../hooks/useChatWebSocket'
 import { useChatStore } from '../../stores/useChatStore'
 import clsx from 'clsx'
@@ -67,6 +68,7 @@ export function ChatPanel({ isMobile = false }: ChatPanelProps) {
           )}
           
           <DevModeToggle />
+          <UserMenu />
         </div>
       </div>
 

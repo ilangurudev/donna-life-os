@@ -3,7 +3,8 @@ import { NotesPanel } from './components/NotesPanel'
 import { ChatPanel } from './components/ChatPanel'
 import { SplitPane, MobileTabBar } from './components/Layout'
 import { MobileNotesView } from './components/NotesPanel/MobileNotesView'
-import { useFileWatcher, useIsMobile } from './hooks'
+import { LoginPage, LoadingScreen } from './components/Auth'
+import { useFileWatcher, useIsMobile, useAuth } from './hooks'
 import { useMobileNav } from './stores/useMobileNav'
 import type { MobileView } from './types'
 
@@ -12,6 +13,17 @@ function App() {
   const { lastChange } = useFileWatcher()
   const isMobile = useIsMobile()
   const { currentView, setView } = useMobileNav()
+  const { isLoading, isAuthenticated, authEnabled, error, login, clearError } = useAuth()
+
+  // Show loading screen while checking auth
+  if (isLoading) {
+    return <LoadingScreen />
+  }
+
+  // Show login page if auth is enabled and user is not authenticated
+  if (authEnabled && !isAuthenticated) {
+    return <LoginPage error={error} onLogin={login} clearError={clearError} />
+  }
 
   // Mobile layout
   if (isMobile) {
