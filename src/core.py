@@ -179,8 +179,8 @@ class PermissionRequest:
 
 
 def load_system_prompt() -> str:
-    """Load the system prompt from prompt.txt."""
-    prompt_path = Path(__file__).parent / "prompt.txt"
+    """Load the system prompt from prompt.md."""
+    prompt_path = Path(__file__).parent / "prompt.md"
     return prompt_path.read_text()
 
 

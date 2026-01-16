@@ -45,7 +45,7 @@ donna-life-os/
 │   │
 │   ├── core.py                   # DonnaAgent class implementation
 │   ├── cli.py                    # Rich CLI interface
-│   └── prompt.txt                # Donna's personality and system prompt
+│   └── prompt.md                # Donna's personality and system prompt
 │
 ├── donna-data/                   # User's data (tasks, projects, notes, etc.)
 ├── guides/                       # Project documentation and plans
@@ -108,7 +108,7 @@ pip install claude-agent-sdk
 from claude_agent_sdk import ClaudeAgentOptions
 
 options = ClaudeAgentOptions(
-    system_prompt=load_system_prompt(),  # From src/prompt.txt
+    system_prompt=load_system_prompt(),  # From src/prompt.md
     model="sonnet",                       # claude-sonnet-4-5
     allowed_tools=["Read", "Write", "Bash"],
     permission_mode="default",            # Ask before sensitive operations
@@ -143,7 +143,7 @@ async with ClaudeSDKClient(options) as client:
 
 ## Key Files Reference
 
-### `src/prompt.txt` - Donna's Personality
+### `src/prompt.md` - Donna's Personality
 
 This is Donna's system prompt. It defines:
 - Core purpose and philosophy
@@ -292,7 +292,7 @@ Review my week:
        # ... existing logic
    ```
 
-3. Update `src/prompt.txt` to explain the new tool to Donna
+3. Update `src/prompt.md` to explain the new tool to Donna
 
 ### Creating a New Interface
 
@@ -318,7 +318,7 @@ async def handle_web_request(user_message: str):
 
 ### Modifying Donna's Personality
 
-1. Edit `src/prompt.txt`
+1. Edit `src/prompt.md`
 2. Test changes by running the CLI: `uv run python -m src.cli`
 3. Iterate based on conversation behavior
 
@@ -327,7 +327,7 @@ async def handle_web_request(user_message: str):
 To make Donna aware of new data types:
 
 1. Add directory to `donna-data/` if needed
-2. Update the data model section in `src/prompt.txt`
+2. Update the data model section in `src/prompt.md`
 3. Add loading logic to `src/core.py` if it should be in system prompt
 4. Update `build_full_system_prompt()` to inject the new context
 
