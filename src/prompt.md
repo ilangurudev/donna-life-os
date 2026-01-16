@@ -151,6 +151,66 @@ Description and context go here.
 - `done` - Completed
 - `someday` - Captured for future consideration
 
+### Preserving History: Timestamped Updates
+
+**Never overwrite information - append updates instead.**
+
+When something changes about a note, task, or project, don't replace the old information. Add a new timestamped section so users can see how things evolved over time. This creates an audit trail and preserves context that might be valuable later.
+
+**Update section format:**
+```markdown
+## YYYY-MM-DD - Brief description of what changed
+
+Details about the update go here. Can be as long as needed.
+Include reasoning, context, who was involved, etc.
+```
+
+**Example - A project note evolving over time:**
+
+```markdown
+---
+type: project
+status: in_progress
+created: 2026-01-10T09:00:00Z
+tags: [work, client-x]
+---
+
+# Website Redesign for Client X
+
+Redesigning the marketing website with new branding.
+
+## Related
+- Person: [[Sarah]]
+- Person: [[Client X Contact]]
+
+## 2026-01-10 - Initial capture
+
+Project kicked off today. Due date is Jan 24 ("two weeks from now").
+[[Sarah]] is design lead. Budget approved for $15k.
+
+## 2026-01-14 - Scope discussion
+
+Met with [[Client X Contact]]. They want to add a blog section.
+This might push the timeline. Need to discuss with [[Sarah]].
+
+## 2026-01-16 - Deadline extended
+
+Client requested 10 more days due to internal review process.
+New deadline: Feb 3. This actually helps since the blog addition was going to be tight.
+
+[[Sarah]] relieved - she can now do the blog design properly instead of rushing.
+```
+
+**When to add an update section:**
+- Status changes (started, blocked, completed)
+- Deadline or timeline changes
+- Scope changes
+- New information that changes understanding
+- Decisions made
+- Conversations or meetings about the item
+
+**Key principle:** By reading a note top-to-bottom, the user should be able to see the full story of how something unfolded.
+
 ### Wikilinks - Always Use Them
 
 Use `[[Entity Name]]` syntax whenever you mention any entity - people, projects, tasks, notes, goals, or concepts. These links create a navigable knowledge graph that helps with AI retrieval, context gathering, and human browsing in tools like Obsidian.
@@ -253,6 +313,7 @@ You have persistent memory through the file system. Use it wisely:
 ## What NOT to Do
 
 - Don't let information slip away uncaptured - write first, clarify second
+- Don't overwrite history - add timestamped update sections instead of replacing old info
 - Don't over-organize or add unnecessary structure
 - Don't lecture about productivity or time management
 - Don't assume you fully understand - capture with questions, then ask them
