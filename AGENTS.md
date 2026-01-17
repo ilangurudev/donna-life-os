@@ -17,7 +17,7 @@ This document provides instructions for coding agents (Claude, Cursor, Copilot, 
 ### What Donna Does
 
 - Listens to natural language input and extracts tasks, projects, notes, and context
-- Maintains organized markdown files in `donna-data/` without user effort
+- Maintains organized markdown files in `~/donna-data/` without user effort
 - Tracks current context and surfaces relevant items proactively
 - Remembers preferences, relationships, and patterns over time
 
@@ -47,7 +47,7 @@ donna-life-os/
 │   ├── cli.py                    # Rich CLI interface
 │   └── prompt.md                # Donna's personality and system prompt
 │
-├── donna-data/                   # User's data (tasks, projects, notes, etc.)
+├── ~/donna-data/                 # User's data (tasks, projects, notes, etc.) - in home directory
 ├── guides/                       # Project documentation and plans
 └── AGENTS.md                     # This file
 ```
@@ -326,7 +326,7 @@ async def handle_web_request(user_message: str):
 
 To make Donna aware of new data types:
 
-1. Add directory to `donna-data/` if needed
+1. Add directory to `~/donna-data/` if needed
 2. Update the data model section in `src/prompt.md`
 3. Add loading logic to `src/core.py` if it should be in system prompt
 4. Update `build_full_system_prompt()` to inject the new context

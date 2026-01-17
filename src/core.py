@@ -73,7 +73,7 @@ def generate_greeting_prompt() -> str:
     if is_new_user():
         setup_donna_data_directory()  # Ensure data folder exists before onboarding
         return """[SYSTEM - ONBOARDING]
-This is a new user. The donna-data folder structure has been initialized.
+This is a new user. The ~/donna-data folder structure has been initialized.
 Use the new-user-onboarding skill to guide them through a natural introduction. I am now going to invoke the new-user-onboarding skill."""
     
     # Returning user - normal greeting
@@ -139,7 +139,7 @@ def setup_donna_data_directory() -> bool:
     """
     Copy template folder for new users.
 
-    This ensures the donna-data directory structure exists before onboarding
+    This ensures the ~/donna-data directory structure exists before onboarding
     starts, so Claude doesn't need to create it via bash commands.
 
     Returns:

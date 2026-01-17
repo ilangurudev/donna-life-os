@@ -1,7 +1,7 @@
 """
 File watch WebSocket route.
 
-Monitors donna-data directory for changes and broadcasts to connected clients.
+Monitors ~/donna-data directory for changes and broadcasts to connected clients.
 """
 
 import asyncio
@@ -39,7 +39,7 @@ class FileChangeHandler(FileSystemEventHandler):
         self._base_dir = DONNA_DATA_DIR.resolve()
     
     def _get_relative_path(self, path: str) -> str | None:
-        """Get path relative to donna-data, or None if outside."""
+        """Get path relative to ~/donna-data, or None if outside."""
         try:
             abs_path = Path(path).resolve()
             rel_path = abs_path.relative_to(self._base_dir)
@@ -167,7 +167,7 @@ async def file_watch_websocket(websocket: WebSocket):
     WebSocket endpoint for file change notifications.
     
     Clients connect to receive real-time updates when files
-    in donna-data are created, modified, or deleted.
+    in ~/donna-data are created, modified, or deleted.
     
     Server sends:
     - {"type": "file_created", "path": "relative/path.md"}

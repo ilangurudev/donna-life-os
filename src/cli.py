@@ -262,7 +262,7 @@ async def _update_context_and_exit(donna: DonnaAgent) -> None:
     console.print("\n[dim]Updating context...[/dim]")
     await donna.send_message(
         "[SYSTEM] The user is ending this session. "
-        "Please update donna-data/current_context.md based on this conversation. "
+        "Please update ~/donna-data/current_context.md based on this conversation. "
         "Add any new topics discussed, update last_mentioned dates for existing items, "
         "and remove any items that are no longer relevant. Keep it focused on 5-7 items max. "
         "Do this silently without explaining what you're doing."

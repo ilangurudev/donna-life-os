@@ -73,7 +73,7 @@ donna-life-os/
 │   ├── web/                # FastAPI web server
 │   └── .claude/            # Donna runtime configuration
 ├── web/                    # React frontend (Vite + TypeScript)
-├── donna-data/             # User's data (markdown files)
+├── ~/donna-data/           # User's data (markdown files) - in home directory
 └── AGENTS.md               # Guide for coding agents
 ```
 
