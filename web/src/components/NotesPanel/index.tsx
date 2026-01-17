@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { FileTree } from './FileTree'
-import { NoteViewer } from './NoteViewer'
+import { NoteModal } from './NoteModal'
 import { RecentNotesList } from './RecentNotesList'
 import { useFileTree, useNote, useNoteRefresh } from '../../hooks/useNotes'
-import { FolderOpen, FileText, Loader2, Clock, FolderTree, X } from 'lucide-react'
+import { FolderOpen, Loader2, Clock, FolderTree } from 'lucide-react'
 import clsx from 'clsx'
 import type { FileEvent } from '../../types'
 
@@ -73,11 +73,8 @@ export function NotesPanel({ selectedNote, onSelectNote, lastChange }: NotesPane
 
       {/* Content */}
       <div className="flex flex-1 flex-col overflow-hidden">
-        {/* Notes list/tree - upper section */}
-        <div className={clsx(
-          'flex-shrink-0 border-b border-donna-border overflow-auto',
-          selectedNote ? 'max-h-48' : 'flex-1'
-        )}>
+        {/* Notes list/tree */}
+        <div className="flex-1 overflow-auto">
           {viewMode === 'recent' ? (
             <RecentNotesList
               onSelectNote={onSelectNote}
@@ -102,39 +99,18 @@ export function NotesPanel({ selectedNote, onSelectNote, lastChange }: NotesPane
             </div>
           )}
         </div>
-
-        {/* Note viewer - lower section, only when a note is selected */}
-        {selectedNote && (
-          <div className="flex-1 overflow-auto min-h-0">
-            {/* Viewer header with close button */}
-            <div className="sticky top-0 bg-donna-bg-secondary border-b border-donna-border/50 px-3 py-2 flex items-center justify-between">
-              <span className="text-xs text-donna-text-muted truncate">
-                {selectedNote}
-              </span>
-              <button
-                onClick={() => onSelectNote(null)}
-                className="p-1 rounded hover:bg-donna-surface text-donna-text-muted hover:text-donna-text"
-                title="Close note"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-            
-            {noteLoading ? (
-              <div className="flex items-center justify-center p-8">
-                <Loader2 className="h-6 w-6 animate-spin text-donna-text-muted" />
-              </div>
-            ) : note ? (
-              <NoteViewer note={note} onNavigate={onSelectNote} />
-            ) : (
-              <div className="flex flex-col items-center justify-center p-8 text-donna-text-muted">
-                <FileText className="h-8 w-8 mb-2 opacity-50" />
-                <p>Note not found</p>
-              </div>
-            )}
-          </div>
-        )}
       </div>
+
+      {/* Note modal */}
+      {selectedNote && (
+        <NoteModal
+          note={note ?? undefined}
+          isLoading={noteLoading}
+          notePath={selectedNote}
+          onClose={() => onSelectNote(null)}
+          onNavigate={onSelectNote}
+        />
+      )}
     </div>
   )
 }
