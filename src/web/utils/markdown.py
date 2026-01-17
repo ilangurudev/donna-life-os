@@ -94,7 +94,7 @@ def resolve_wiki_link(link: str, notes_dir: Path) -> str | None:
     
     Args:
         link: The wiki link text (without brackets)
-        notes_dir: Base directory for notes (donna-data)
+        notes_dir: Base directory for notes (~/donna-data)
         
     Returns:
         Relative path to the file, or None if not found

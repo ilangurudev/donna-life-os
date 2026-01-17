@@ -1,7 +1,7 @@
 """
 Notes REST API routes.
 
-Provides endpoints for listing and reading notes from donna-data.
+Provides endpoints for listing and reading notes from ~/donna-data.
 """
 
 import os
@@ -30,7 +30,7 @@ async def list_notes() -> dict[str, Any]:
     Get the complete file tree of notes.
     
     Returns a nested structure representing all markdown files
-    in the donna-data directory.
+    in the ~/donna-data directory.
     """
     if not DONNA_DATA_DIR.exists():
         return {
@@ -138,7 +138,7 @@ async def get_note(path: str) -> dict[str, Any]:
     
     note_path = DONNA_DATA_DIR / path
     
-    # Security: ensure path is within donna-data
+    # Security: ensure path is within ~/donna-data
     try:
         note_path = note_path.resolve()
         DONNA_DATA_DIR.resolve()

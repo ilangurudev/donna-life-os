@@ -51,7 +51,7 @@ ALLOWED_TOOLS = [
 ]
 
 # Tools that are auto-allowed without user confirmation
-# These are safe, read-only or donna-data-focused operations
+# These are safe, read-only or ~/donna-data-focused operations
 AUTO_ALLOWED_TOOLS = [
     "Read",
     "Write",
@@ -68,10 +68,12 @@ AUTO_ALLOWED_TOOLS = [
 # Data Paths
 # =============================================================================
 
-# Base directory for all Donna data files
-# Use absolute path relative to project root (one level up from src/)
+# Project root for reference (one level up from src/)
 PROJECT_ROOT = Path(__file__).parent.parent
-DONNA_DATA_DIR = PROJECT_ROOT / "donna-data"
+
+# Base directory for all Donna data files
+# Uses ~/donna-data for user's home directory (persistent across projects)
+DONNA_DATA_DIR = Path.home() / "donna-data"
 
 # Key files within the data directory
 CURRENT_CONTEXT_FILE = DONNA_DATA_DIR / "current_context.md"

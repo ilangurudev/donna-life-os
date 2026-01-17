@@ -5,7 +5,7 @@ description: Maintain the current_context.md file with information likely releva
 
 # Purpose
 
-The `donna-data/current_context.md` file is Donna's **working memory** - it holds what's most likely to be relevant in the user's next session. Think of it as "what's on the user's mind right now."
+The `~/donna-data/current_context.md` file is Donna's **working memory** - it holds what's most likely to be relevant in the user's next session. Think of it as "what's on the user's mind right now."
 
 This is NOT a permanent record. It's a living document that evolves with each conversation.
 
@@ -65,4 +65,4 @@ Summarized context...
 - Anything that belongs in preferences (favorite coffee order isn't "current context")
 
 
-IMPORTANT: Make sure you actually Write and update the `donna-data/current_context.md`. 
+IMPORTANT: Make sure you actually Write and update the `~/donna-data/current_context.md`. 

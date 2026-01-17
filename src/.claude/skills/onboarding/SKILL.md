@@ -9,17 +9,17 @@ This skill guides first-time users through a friendly introduction to Donna, get
 
 ## Note: Data Folder Setup
 
-The `donna-data/` directory is automatically created by the system before this skill runs.
-You can immediately start writing to files like `donna-data/user_info_and_preferences.md`. 
+The `~/donna-data/` directory is automatically created by the system before this skill runs.
+You can immediately start writing to files like `~/donna-data/user_info_and_preferences.md`. 
 
 
 ## Critical: Save Data Immediately
 
 **IMPORTANT: Write to files AS SOON AS you learn something, not at the end.**
 
-- Got the user's name? **Write to `donna-data/user_info_and_preferences.md` immediately.**
-- User mentioned a project? **Invote `current_context_updater` skill to write to `donna-data/current_context.md` immediately.**
-- User mentioned a person? **Create a file in `donna-data/people/` immediately.**
+- Got the user's name? **Write to `~/donna-data/user_info_and_preferences.md` immediately.**
+- User mentioned a project? **Invote `current_context_updater` skill to write to `~/donna-data/current_context.md` immediately.**
+- User mentioned a person? **Create a file in `~/donna-data/people/` immediately.**
 
 Don't wait. Don't batch. Save incrementally throughout the conversation.
 
@@ -46,7 +46,7 @@ Onboarding should feel like meeting a thoughtful friend, not filling out a form.
 > "Hey! I'm Donna - I help keep life organized so you can stay in flow. What should I call you?"
 
 **IMMEDIATELY after they respond with their name:**
-1. Write to `donna-data/user_info_and_preferences.md` with their name
+1. Write to `~/donna-data/user_info_and_preferences.md` with their name
 2. Then continue the conversation
 
 ### Step 2: Personal Side
@@ -81,7 +81,7 @@ After learning about them, explain what you can help with:
 > - I keep your notes, tasks, and projects organized - you just talk naturally and I handle the structure
 > - You can ask me questions about anything we've discussed or that's in your notes
 > - I have check-in features - daily quick syncs or weekly reviews to keep you on track
-> - Everything I store lives in the `donna-data/` folder as plain markdown files - you can read or edit them anytime. 
+> - Everything I store lives in the `~/donna-data/` folder as plain markdown files - you can read or edit them anytime. 
 >   For instance, take a look at user_info_and_preferences.md to see what I wrote about you!
 >
 > 
@@ -91,7 +91,7 @@ After learning about them, explain what you can help with:
 
 ### Immediately After Getting Name
 
-Write to `donna-data/user_info_and_preferences.md`:
+Write to `~/donna-data/user_info_and_preferences.md`:
 
 ```yaml
 ---
@@ -118,16 +118,16 @@ discovered_on: [today's date YYYY-MM-DD]
 
 ### After Personal/Professional Questions
 
-Update `donna-data/user_info_and_preferences.md` with what they shared. Make sure you use wikilinks wherever appropriate (whenver corresponding files exist). 
+Update `~/donna-data/user_info_and_preferences.md` with what they shared. Make sure you use wikilinks wherever appropriate (whenver corresponding files exist). 
 
-Also update `donna-data/current_context.md`. For this use the `current_context_updater` skill. 
+Also update `~/donna-data/current_context.md`. For this use the `current_context_updater` skill. 
 
 
 ### Throughout Conversation
 
 Any time user mentions:
 - A new project → Add to `current_context.md` (Use the current_context_updater skill)
-- A person → Consider creating `donna-data/people/[name].md`
+- A person → Consider creating `~/donna-data/people/[name].md`
 - A deadline → Update the context item with `expires` date
 - Preferences → Update `user_info_and_preferences.md`
 
@@ -168,7 +168,7 @@ Any time user mentions:
 - I keep your notes, tasks, and projects organized - you just talk naturally and I handle the structure
 - You can ask me questions about anything we've discussed or that's in your notes
 - I have check-in features - daily quick syncs or weekly reviews to keep you on track
-- Everything I store lives in the `donna-data/` folder as plain markdown files - you can read or edit them anytime. For instance, check `user_info_and_preferences.md` file. 
+- Everything I store lives in the `~/donna-data/` folder as plain markdown files - you can read or edit them anytime. For instance, check `user_info_and_preferences.md` file. 
 
 What would you like to start with?
 
