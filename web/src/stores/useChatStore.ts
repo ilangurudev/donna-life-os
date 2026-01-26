@@ -4,16 +4,17 @@ import type { ChatMessage, SessionStats, PermissionRequest } from '../types'
 interface ChatState {
   messages: ChatMessage[]
   currentMessage: Partial<ChatMessage> | null
+  currentToolId: string | null  // Track which tool gets results
   isConnected: boolean
   isLoading: boolean
   sessionStats: SessionStats | null
   permissionRequest: PermissionRequest | null
-  
+
   // Actions
   addUserMessage: (content: string) => void
   startAssistantMessage: () => void
   appendText: (text: string) => void
-  setThinking: (thinking: string) => void
+  appendThinking: (thinking: string) => void
   addToolCall: (name: string, input: Record<string, unknown>) => void
   setToolResult: (result: string, isError: boolean) => void
   finalizeAssistantMessage: () => void
@@ -25,10 +26,12 @@ interface ChatState {
 }
 
 let messageIdCounter = 0
+let toolIdCounter = 0
 
 export const useChatStore = create<ChatState>((set, get) => ({
   messages: [],
   currentMessage: null,
+  currentToolId: null,
   isConnected: false,
   isLoading: false,
   sessionStats: null,
@@ -38,7 +41,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const message: ChatMessage = {
       id: `msg-${++messageIdCounter}`,
       role: 'user',
-      content,
+      blocks: [{ type: 'text', content }],
       timestamp: new Date(),
     }
     set((state) => ({ messages: [...state.messages, message] }))
@@ -49,58 +52,92 @@ export const useChatStore = create<ChatState>((set, get) => ({
       currentMessage: {
         id: `msg-${++messageIdCounter}`,
         role: 'assistant',
-        content: '',
+        blocks: [],
         timestamp: new Date(),
-        toolCalls: [],
       },
+      currentToolId: null,
       isLoading: true,
     })
   },
 
   appendText: (text: string) => {
-    set((state) => ({
-      currentMessage: state.currentMessage
-        ? { ...state.currentMessage, content: (state.currentMessage.content || '') + text }
-        : null,
-    }))
+    set((state) => {
+      if (!state.currentMessage) return state
+
+      const blocks = [...(state.currentMessage.blocks || [])]
+      const lastBlock = blocks[blocks.length - 1]
+
+      // Merge with last text block if consecutive
+      if (lastBlock?.type === 'text') {
+        blocks[blocks.length - 1] = { ...lastBlock, content: lastBlock.content + text }
+      } else {
+        blocks.push({ type: 'text', content: text })
+      }
+
+      return { currentMessage: { ...state.currentMessage, blocks } }
+    })
   },
 
-  setThinking: (thinking: string) => {
-    set((state) => ({
-      currentMessage: state.currentMessage
-        ? { ...state.currentMessage, thinking }
-        : null,
-    }))
+  appendThinking: (thinking: string) => {
+    set((state) => {
+      if (!state.currentMessage) return state
+
+      const blocks = [...(state.currentMessage.blocks || [])]
+      const lastBlock = blocks[blocks.length - 1]
+
+      // Merge with last thinking block if consecutive
+      if (lastBlock?.type === 'thinking') {
+        blocks[blocks.length - 1] = { ...lastBlock, content: lastBlock.content + thinking }
+      } else {
+        blocks.push({ type: 'thinking', content: thinking })
+      }
+
+      return { currentMessage: { ...state.currentMessage, blocks } }
+    })
   },
 
   addToolCall: (name: string, input: Record<string, unknown>) => {
+    const toolId = `tool-${++toolIdCounter}`
     set((state) => {
       if (!state.currentMessage) return state
-      const toolCalls = [...(state.currentMessage.toolCalls || []), { name, input }]
-      return { currentMessage: { ...state.currentMessage, toolCalls } }
+
+      const blocks = [...(state.currentMessage.blocks || [])]
+      blocks.push({ type: 'tool_use', id: toolId, name, input })
+
+      return {
+        currentMessage: { ...state.currentMessage, blocks },
+        currentToolId: toolId,
+      }
     })
   },
 
   setToolResult: (result: string, isError: boolean) => {
     set((state) => {
-      if (!state.currentMessage?.toolCalls?.length) return state
-      const toolCalls = [...state.currentMessage.toolCalls]
-      const lastTool = toolCalls[toolCalls.length - 1]
-      toolCalls[toolCalls.length - 1] = { ...lastTool, result, isError }
-      return { currentMessage: { ...state.currentMessage, toolCalls } }
+      if (!state.currentMessage?.blocks?.length || !state.currentToolId) return state
+
+      const blocks = state.currentMessage.blocks.map((block) => {
+        if (block.type === 'tool_use' && block.id === state.currentToolId) {
+          return { ...block, result, isError }
+        }
+        return block
+      })
+
+      return { currentMessage: { ...state.currentMessage, blocks } }
     })
   },
 
   finalizeAssistantMessage: () => {
     const { currentMessage } = get()
-    if (currentMessage && currentMessage.content) {
+    // Finalize if there are any blocks (thinking, tools, or text)
+    if (currentMessage && currentMessage.blocks && currentMessage.blocks.length > 0) {
       set((state) => ({
         messages: [...state.messages, currentMessage as ChatMessage],
         currentMessage: null,
+        currentToolId: null,
         isLoading: false,
       }))
     } else {
-      set({ currentMessage: null, isLoading: false })
+      set({ currentMessage: null, currentToolId: null, isLoading: false })
     }
   },
 
@@ -108,5 +145,5 @@ export const useChatStore = create<ChatState>((set, get) => ({
   setLoading: (loading: boolean) => set({ isLoading: loading }),
   setSessionStats: (stats: SessionStats) => set({ sessionStats: stats }),
   setPermissionRequest: (request: PermissionRequest | null) => set({ permissionRequest: request }),
-  clearMessages: () => set({ messages: [], currentMessage: null, sessionStats: null }),
+  clearMessages: () => set({ messages: [], currentMessage: null, currentToolId: null, sessionStats: null }),
 }))
