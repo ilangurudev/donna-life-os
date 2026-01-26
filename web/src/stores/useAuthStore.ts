@@ -55,7 +55,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
           status: 'unauthenticated',
           authEnabled: true,
           user: null,
-          error: null,
+          // Don't clear error here - it may have been set from URL params (e.g., auth_error=email_not_allowed)
         })
       }
     } catch (err) {
