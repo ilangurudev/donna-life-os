@@ -27,6 +27,9 @@ class AuthConfig:
     
     # Allowed email domains (empty list = allow all)
     allowed_email_domains: list[str] | None = None
+
+    # Exact email match (takes priority over domains)
+    allowed_email: str | None = None
     
     # Base URL for OAuth callbacks (e.g., "https://myapp.com")
     # If not set, will be inferred from request
@@ -34,9 +37,14 @@ class AuthConfig:
     
     def is_email_allowed(self, email: str) -> bool:
         """Check if an email address is allowed to access the app."""
+        # Exact email match takes priority
+        if self.allowed_email:
+            return email.lower() == self.allowed_email.lower()
+
+        # Fall back to domain check
         if not self.allowed_email_domains:
             return True
-        
+
         domain = email.split("@")[-1].lower()
         return domain in [d.lower() for d in self.allowed_email_domains]
 
@@ -53,6 +61,7 @@ def get_auth_config() -> AuthConfig:
     
     Optional environment variables:
     - AUTH_ENABLED: Set to "true" to enable authentication (default: false)
+    - ALLOWED_EMAIL: Exact email address to allow (takes priority over domains)
     - ALLOWED_EMAIL_DOMAINS: Comma-separated list of allowed email domains
     - AUTH_BASE_URL: Base URL for OAuth callbacks
     - SESSION_MAX_AGE: Session duration in seconds (default: 604800 = 7 days)
@@ -66,12 +75,16 @@ def get_auth_config() -> AuthConfig:
     # Session max age
     session_max_age = int(os.getenv("SESSION_MAX_AGE", str(60 * 60 * 24 * 7)))
     
+    # Parse allowed email
+    allowed_email = os.getenv("ALLOWED_EMAIL", "").strip() or None
+
     return AuthConfig(
         enabled=enabled,
         google_client_id=os.getenv("GOOGLE_CLIENT_ID", ""),
         google_client_secret=os.getenv("GOOGLE_CLIENT_SECRET", ""),
         session_secret_key=os.getenv("SESSION_SECRET_KEY", "dev-secret-key-change-in-production"),
         allowed_email_domains=allowed_domains,
+        allowed_email=allowed_email,
         base_url=os.getenv("AUTH_BASE_URL"),
         session_max_age=session_max_age,
     )
