@@ -42,6 +42,12 @@ async def handle_request(user_message: str):
 
 ## Permission Handling
 
-- `Read` and `Write` are auto-allowed (memory/context management)
-- `Bash` requires user confirmation via callback
-- Add new tools to `allowed_tools` in `ClaudeAgentOptions`
+Auto-allowed tools (no user confirmation needed):
+- `Read`, `Write`, `Edit` - File operations for memory/context management
+- `Grep`, `Glob` - Search and file discovery
+- `Skill`, `Task` - Agent orchestration
+
+Tools requiring user confirmation:
+- `Bash` - Shell commands are prompted via the permission callback
+
+To add new tools, update `ALLOWED_TOOLS` and `AUTO_ALLOWED_TOOLS` in `src/config.py`.

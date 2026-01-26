@@ -39,16 +39,21 @@ export interface RecentNotesResponse {
 // Mobile navigation view types
 export type MobileView = 'chat' | 'notes' | 'note-detail'
 
+// Content block types for preserving temporal flow
+export type ContentBlock =
+  | { type: 'thinking'; content: string }
+  | { type: 'tool_use'; id: string; name: string; input: Record<string, unknown>; result?: string; isError?: boolean }
+  | { type: 'text'; content: string }
+
 // Chat message types
 export interface ChatMessage {
   id: string
   role: 'user' | 'assistant'
-  content: string
+  blocks: ContentBlock[]  // Ordered array preserving temporal flow
   timestamp: Date
-  thinking?: string
-  toolCalls?: ToolCall[]
 }
 
+// Legacy ToolCall type for compatibility
 export interface ToolCall {
   name: string
   input: Record<string, unknown>

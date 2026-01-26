@@ -50,6 +50,11 @@ class WebSocketPermissionHandler:
     async def handle_permission(self, request: PermissionRequest) -> bool:
         """
         Send permission request to client and wait for response.
+
+        IMPORTANT: This method receives WebSocket messages directly because
+        the main message loop is blocked waiting for process_agent_response()
+        to complete. We can't rely on resolve_permission() being called from
+        the main loop.
         """
         # Send permission request
         await self.websocket.send_json({
@@ -57,22 +62,28 @@ class WebSocketPermissionHandler:
             "tool": request.tool_name,
             "input": request.tool_input,
         })
-        
-        # Create a future to wait for the response
-        self._pending_permission = asyncio.get_event_loop().create_future()
-        
+
         try:
-            # Wait for response (with timeout)
-            result = await asyncio.wait_for(self._pending_permission, timeout=300)
-            return result
+            # Wait for permission response directly from WebSocket
+            # The main loop is blocked, so we must receive here
+            while True:
+                data = await asyncio.wait_for(
+                    self.websocket.receive_json(),
+                    timeout=300
+                )
+
+                if data.get("type") == "permission_response":
+                    return data.get("allowed", False)
+                # Ignore other message types while waiting for permission
         except asyncio.TimeoutError:
             return False
-        finally:
-            self._pending_permission = None
-    
+
     def resolve_permission(self, allowed: bool) -> None:
         """
         Resolve a pending permission request.
+
+        NOTE: This method is kept for API compatibility but is no longer
+        used since handle_permission() now receives messages directly.
         """
         if self._pending_permission and not self._pending_permission.done():
             self._pending_permission.set_result(allowed)

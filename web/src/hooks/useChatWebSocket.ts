@@ -15,7 +15,7 @@ export function useChatWebSocket() {
     setConnected,
     startAssistantMessage,
     appendText,
-    setThinking,
+    appendThinking,
     addToolCall,
     setToolResult,
     finalizeAssistantMessage,
@@ -55,7 +55,7 @@ export function useChatWebSocket() {
             break
             
           case 'thinking':
-            setThinking(data.content)
+            appendThinking(data.content)
             break
             
           case 'tool_use':
@@ -104,7 +104,7 @@ export function useChatWebSocket() {
     setConnected,
     startAssistantMessage,
     appendText,
-    setThinking,
+    appendThinking,
     addToolCall,
     setToolResult,
     finalizeAssistantMessage,

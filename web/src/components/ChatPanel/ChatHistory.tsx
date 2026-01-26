@@ -2,7 +2,7 @@ import { User, Bot, Loader2 } from 'lucide-react'
 import { ThinkingBlock } from './ThinkingBlock'
 import { ToolCallBlock } from './ToolCallBlock'
 import { useDevMode } from '../../stores/useDevMode'
-import type { ChatMessage } from '../../types'
+import type { ChatMessage, ContentBlock } from '../../types'
 import clsx from 'clsx'
 
 interface ChatHistoryProps {
@@ -66,6 +66,21 @@ interface MessageBubbleProps {
 
 function MessageBubble({ message, devMode, isStreaming }: MessageBubbleProps) {
   const isUser = message.role === 'user'
+  const blocks = message.blocks || []
+
+  // Filter blocks based on devMode
+  const visibleBlocks = devMode
+    ? blocks
+    : blocks.filter((block) => block.type === 'text')
+
+  // Find the last text block index for streaming cursor
+  const lastTextBlockIndex = visibleBlocks.reduce(
+    (lastIdx, block, idx) => (block.type === 'text' ? idx : lastIdx),
+    -1
+  )
+
+  // Check if message has any visible content
+  const hasVisibleContent = visibleBlocks.length > 0
 
   return (
     <div
@@ -89,40 +104,19 @@ function MessageBubble({ message, devMode, isStreaming }: MessageBubbleProps) {
         )}
       </div>
 
-      {/* Content */}
+      {/* Content - render blocks in temporal order */}
       <div className={clsx('flex-1 space-y-2 min-w-0', isUser ? 'items-end' : '')}>
-        {/* Dev mode: Thinking block */}
-        {devMode && message.thinking && (
-          <ThinkingBlock content={message.thinking} />
-        )}
-
-        {/* Dev mode: Tool calls */}
-        {devMode && message.toolCalls?.map((tool, i) => (
-          <ToolCallBlock key={i} toolCall={tool} />
+        {visibleBlocks.map((block, index) => (
+          <BlockRenderer
+            key={index}
+            block={block}
+            isUser={isUser}
+            showStreamingCursor={isStreaming && index === lastTextBlockIndex}
+          />
         ))}
 
-        {/* Main message content */}
-        {message.content && (
-          <div
-            className={clsx(
-              'rounded-2xl px-3 py-2 sm:px-4 sm:py-2.5',
-              'max-w-[90%] sm:max-w-[85%]',
-              isUser
-                ? 'bg-donna-accent text-donna-bg ml-auto'
-                : 'bg-donna-surface text-donna-text'
-            )}
-          >
-            <p className="whitespace-pre-wrap text-sm leading-relaxed break-words">
-              {message.content}
-              {isStreaming && (
-                <span className="inline-block w-1.5 h-4 bg-donna-accent ml-0.5 animate-pulse-subtle" />
-              )}
-            </p>
-          </div>
-        )}
-
         {/* Streaming indicator for empty content */}
-        {isStreaming && !message.content && !message.thinking && !message.toolCalls?.length && (
+        {isStreaming && !hasVisibleContent && (
           <div className="flex items-center gap-2 text-donna-text-muted">
             <Loader2 className="h-4 w-4 animate-spin" />
             <span className="text-sm">Thinking...</span>
@@ -131,4 +125,52 @@ function MessageBubble({ message, devMode, isStreaming }: MessageBubbleProps) {
       </div>
     </div>
   )
+}
+
+interface BlockRendererProps {
+  block: ContentBlock
+  isUser: boolean
+  showStreamingCursor?: boolean
+}
+
+function BlockRenderer({ block, isUser, showStreamingCursor }: BlockRendererProps) {
+  switch (block.type) {
+    case 'thinking':
+      return <ThinkingBlock content={block.content} />
+
+    case 'tool_use':
+      return (
+        <ToolCallBlock
+          toolCall={{
+            name: block.name,
+            input: block.input,
+            result: block.result,
+            isError: block.isError,
+          }}
+        />
+      )
+
+    case 'text':
+      return (
+        <div
+          className={clsx(
+            'rounded-2xl px-3 py-2 sm:px-4 sm:py-2.5',
+            'max-w-[90%] sm:max-w-[85%]',
+            isUser
+              ? 'bg-donna-accent text-donna-bg ml-auto'
+              : 'bg-donna-surface text-donna-text'
+          )}
+        >
+          <p className="whitespace-pre-wrap text-sm leading-relaxed break-words">
+            {block.content}
+            {showStreamingCursor && (
+              <span className="inline-block w-1.5 h-4 bg-donna-accent ml-0.5 animate-pulse-subtle" />
+            )}
+          </p>
+        </div>
+      )
+
+    default:
+      return null
+  }
 }
