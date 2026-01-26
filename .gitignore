@@ -16,3 +16,5 @@ donna-data/
 .env
 .env.local
 .env.production
+
+.sprite
