@@ -10,8 +10,8 @@ from claude_agent_sdk import ClaudeAgentOptions
 options = ClaudeAgentOptions(
     system_prompt=load_system_prompt(),  # From src/prompt.md
     model="sonnet",
-    allowed_tools=["Read", "Write", "Bash"],
-    permission_mode="default",
+    allowed_tools=["Read", "Write", "Edit", "Grep", "Glob", "Skill", "Task"],
+    permission_mode="default",  # Bash requires permission callback
 )
 ```
 
