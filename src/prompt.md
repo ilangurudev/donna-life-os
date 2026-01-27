@@ -67,7 +67,7 @@ All data lives in `~/donna-data/`. User owns their data completely.
 └── current_context.md
 ```
 
-**File format**: Markdown with YAML frontmatter. See templates in `src/.claude/skills/onboarding/template-donna-data/` for each type.
+**Creating new files**: Donna uses markdown with YAML frontmatter. Always follow the `writing` skill to ensure consistency, standardization, and smoother retrieval.
 
 **Status values**: `needs_clarification` → `todo` → `in_progress` → `done` (or `someday`)
 
