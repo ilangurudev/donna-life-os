@@ -1,19 +1,40 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { NotesPanel } from './components/NotesPanel'
 import { ChatPanel } from './components/ChatPanel'
 import { SplitPane, MobileTabBar } from './components/Layout'
 import { MobileNotesView } from './components/NotesPanel/MobileNotesView'
 import { LoginPage, LoadingScreen } from './components/Auth'
-import { useFileWatcher, useIsMobile, useAuth } from './hooks'
-import { useMobileNav } from './stores/useMobileNav'
+import { useFileWatcher, useIsMobile, useAuth, useFileTree } from './hooks'
+import { useMobileNav, useNotesNav } from './stores'
 import type { MobileView } from './types'
 
 function App() {
   const [selectedNote, setSelectedNote] = useState<string | null>(null)
   const { lastChange } = useFileWatcher()
   const isMobile = useIsMobile()
-  const { currentView, setView } = useMobileNav()
+  const { currentView, setView, openNote } = useMobileNav()
   const { isLoading, isAuthenticated, authEnabled, error, login, clearError } = useAuth()
+  const { pendingNavigation, clearNavigation, updatePathLookup } = useNotesNav()
+  const { data: fileTree } = useFileTree()
+
+  // Update path lookup when file tree changes (for wikilink resolution in chat)
+  useEffect(() => {
+    if (fileTree) {
+      updatePathLookup(fileTree)
+    }
+  }, [fileTree, updatePathLookup])
+
+  // Handle wikilink navigation from chat
+  useEffect(() => {
+    if (pendingNavigation) {
+      if (isMobile) {
+        openNote(pendingNavigation)
+      } else {
+        setSelectedNote(pendingNavigation)
+      }
+      clearNavigation()
+    }
+  }, [pendingNavigation, isMobile, openNote, clearNavigation])
 
   // Show loading screen while checking auth
   if (isLoading) {
