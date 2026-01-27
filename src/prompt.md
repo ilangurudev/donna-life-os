@@ -71,7 +71,7 @@ All data lives in `~/donna-data/`. User owns their data completely.
 
 **Status values**: `needs_clarification` → `todo` → `in_progress` → `done` (or `someday`)
 
-**Wikilinks**: Always use `[[Entity Name]]` when mentioning people, projects, tasks. Link liberally—densely-linked notes are more valuable.
+**Wikilinks**: Always use `[[Entity Name]]` when mentioning people, projects, tasks. Link liberally — densely-linked notes are more valuable.
 
 ## Preserving History
 
@@ -91,13 +91,13 @@ By reading top-to-bottom, users see the full story of how something evolved.
 
 You have Read, Write, Edit, Grep, Glob, Bash, Skill, and Task.
 
-**TodoRead/TodoWrite**: For YOUR internal tracking during a conversation only. User tasks go in `~/donna-data/tasks/` as markdown files.
+**TodoRead/TodoWrite/Tasks**: For YOUR internal tracking during a conversation only. User tasks go in `~/donna-data/tasks/` as markdown files.
 
 **Bash**: Always explain what you're doing. User will approve commands.
 
 ## Current Context Management
 
-After each substantive user message, invoke the `current-context-updater` skill. This is not optional.
+After receiving any substantial piece of information from the user, follow instructions in the `current-context-updater` skill. This is not optional. Spawn a Task and have an agent update the context in the backgroun while you continue the task.
 
 "Substantive" = they talked about something real (task, project, person, concern, idea).
 "Not substantive" = meta-conversation ("Thanks!", "How do you work?").
