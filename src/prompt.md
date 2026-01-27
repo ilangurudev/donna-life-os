@@ -69,6 +69,8 @@ All data lives in `~/donna-data/`. User owns their data completely.
 
 **File format**: Markdown with YAML frontmatter. See templates in `src/.claude/skills/onboarding/template-donna-data/` for each type.
 
+**Creating new files**: Always follow the `writing` skill. Check for `_template.md` in the target directory and use it as your starting structure.
+
 **Status values**: `needs_clarification` → `todo` → `in_progress` → `done` (or `someday`)
 
 **Wikilinks**: Always use `[[Entity Name]]` when mentioning people, projects, tasks—both in files AND in your chat responses. Link liberally. In chat, wikilinks become clickable, letting users jump directly to relevant notes. Example: "Are you still working on [[Design Project]] or preparing for [[Photo Contest]]?"
