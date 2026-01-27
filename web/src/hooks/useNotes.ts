@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient, useInfiniteQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient, useInfiniteQuery, useMutation } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useAuthStore } from '../stores/useAuthStore'
 import type { FileNode, Note, FileEvent, RecentNotesResponse } from '../types'
@@ -45,6 +45,23 @@ async function fetchRecentNotes(
   return response.json()
 }
 
+async function saveNote(
+  path: string,
+  content: string,
+  checkAuth: () => Promise<void>
+): Promise<Note> {
+  const response = await fetch(`/api/notes/${path}`, {
+    method: 'PUT',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ content }),
+  })
+  await handleApiResponse(response, checkAuth)
+  return response.json()
+}
+
 export function useFileTree() {
   const { checkAuth } = useAuthStore()
   
@@ -75,7 +92,7 @@ export function useNote(path: string | null) {
 
 export function useRecentNotes(limit: number = 50) {
   const { checkAuth } = useAuthStore()
-  
+
   return useInfiniteQuery({
     queryKey: ['notes', 'recent', limit],
     queryFn: ({ pageParam = 0 }) => fetchRecentNotes(limit, pageParam, checkAuth),
@@ -87,6 +104,22 @@ export function useRecentNotes(limit: number = 50) {
     retry: (failureCount, error) => {
       if (error.message === 'Authentication required') return false
       return failureCount < 3
+    },
+  })
+}
+
+export function useSaveNote() {
+  const { checkAuth } = useAuthStore()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ path, content }: { path: string; content: string }) =>
+      saveNote(path, content, checkAuth),
+    onSuccess: (updatedNote) => {
+      // Update the specific note in cache
+      queryClient.setQueryData(['notes', 'note', updatedNote.path], updatedNote)
+      // Invalidate recent notes to refresh the list
+      queryClient.invalidateQueries({ queryKey: ['notes', 'recent'] })
     },
   })
 }
