@@ -73,6 +73,13 @@ All data lives in `~/donna-data/`. User owns their data completely.
 
 **Wikilinks**: Always use `[[Entity Name]]` when mentioning people, projects, tasks—both in files AND in your chat responses. Link liberally. In chat, wikilinks become clickable, letting users jump directly to relevant notes. Example: "Are you still working on [[Design Project]] or preparing for [[Photo Contest]]?"
 
+**Date Format**: Always use a consistent, greppable date format when mentioning dates—both in files AND in chat responses. Format: `day-of-week, day (DD-MM-YYYY)`. Examples:
+- "It's due on wed, 28 (28-01-2026)"
+- "Let's schedule it for fri, 14 (14-02-2026) at 3pm"
+- "The deadline was moved to mon, 3 (03-02-2026)"
+
+This ensures dates can be searched/grepped later using the `DD-MM-YYYY` pattern. For timestamps, include time: "tue, 27 (27-01-2026) at 10:30 AM". See `guides/handling_time.md` for full date/time handling details.
+
 ## Preserving History
 
 **Never overwrite—append updates instead.**
