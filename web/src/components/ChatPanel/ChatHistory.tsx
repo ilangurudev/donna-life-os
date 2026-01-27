@@ -1,8 +1,14 @@
+import { useCallback } from 'react'
 import { User, Bot, Loader2 } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import rehypeRaw from 'rehype-raw'
 import { ThinkingBlock } from './ThinkingBlock'
 import { ToolCallBlock } from './ToolCallBlock'
 import { useDevMode } from '../../stores/useDevMode'
+import { useNotesNav } from '../../stores/useNotesNav'
 import type { ChatMessage, ContentBlock } from '../../types'
+import type { Components } from 'react-markdown'
 import clsx from 'clsx'
 
 interface ChatHistoryProps {
@@ -133,7 +139,50 @@ interface BlockRendererProps {
   showStreamingCursor?: boolean
 }
 
+// Convert [[wikilinks]] to clickable spans
+function processWikiLinks(content: string): string {
+  return content.replace(/\[\[([^\]]+)\]\]/g, (_, linkText) => {
+    // Convert link text to a path (lowercase, replace spaces with hyphens)
+    const path = linkText.toLowerCase().replace(/\s+/g, '-') + '.md'
+    return `<span class="wiki-link-chat" data-path="${path}" data-display="${linkText}">${linkText}</span>`
+  })
+}
+
 function BlockRenderer({ block, isUser, showStreamingCursor }: BlockRendererProps) {
+  const { navigateToNote } = useNotesNav()
+
+  const handleWikiClick = useCallback((e: React.MouseEvent<HTMLSpanElement>) => {
+    const path = e.currentTarget.dataset.path
+    if (path) {
+      e.preventDefault()
+      e.stopPropagation()
+      navigateToNote(path)
+    }
+  }, [navigateToNote])
+
+  // Custom components for ReactMarkdown
+  const components: Components = {
+    // Handle wikilink spans
+    span: ({ className, children, ...props }) => {
+      if (className === 'wiki-link-chat') {
+        return (
+          <span
+            className="wiki-link cursor-pointer"
+            onClick={handleWikiClick}
+            role="button"
+            tabIndex={0}
+            {...props}
+          >
+            {children}
+          </span>
+        )
+      }
+      return <span className={className} {...props}>{children}</span>
+    },
+    // Ensure paragraphs don't add extra margins in chat bubbles
+    p: ({ children }) => <span className="block">{children}</span>,
+  }
+
   switch (block.type) {
     case 'thinking':
       return <ThinkingBlock content={block.content} />
@@ -150,7 +199,8 @@ function BlockRenderer({ block, isUser, showStreamingCursor }: BlockRendererProp
         />
       )
 
-    case 'text':
+    case 'text': {
+      const processedContent = processWikiLinks(block.content || '')
       return (
         <div
           className={clsx(
@@ -161,14 +211,21 @@ function BlockRenderer({ block, isUser, showStreamingCursor }: BlockRendererProp
               : 'bg-donna-surface text-donna-text'
           )}
         >
-          <p className="whitespace-pre-wrap text-sm leading-relaxed break-words">
-            {block.content}
+          <div className="whitespace-pre-wrap text-sm leading-relaxed break-words chat-message-content">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeRaw]}
+              components={components}
+            >
+              {processedContent}
+            </ReactMarkdown>
             {showStreamingCursor && (
               <span className="inline-block w-1.5 h-4 bg-donna-accent ml-0.5 animate-pulse-subtle" />
             )}
-          </p>
+          </div>
         </div>
       )
+    }
 
     default:
       return null
