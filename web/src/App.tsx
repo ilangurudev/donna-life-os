@@ -4,7 +4,7 @@ import { ChatPanel } from './components/ChatPanel'
 import { SplitPane, MobileTabBar } from './components/Layout'
 import { MobileNotesView } from './components/NotesPanel/MobileNotesView'
 import { LoginPage, LoadingScreen } from './components/Auth'
-import { useFileWatcher, useIsMobile, useAuth } from './hooks'
+import { useFileWatcher, useIsMobile, useAuth, useFileTree } from './hooks'
 import { useMobileNav, useNotesNav } from './stores'
 import type { MobileView } from './types'
 
@@ -14,7 +14,15 @@ function App() {
   const isMobile = useIsMobile()
   const { currentView, setView, openNote } = useMobileNav()
   const { isLoading, isAuthenticated, authEnabled, error, login, clearError } = useAuth()
-  const { pendingNavigation, clearNavigation } = useNotesNav()
+  const { pendingNavigation, clearNavigation, updatePathLookup } = useNotesNav()
+  const { data: fileTree } = useFileTree()
+
+  // Update path lookup when file tree changes (for wikilink resolution in chat)
+  useEffect(() => {
+    if (fileTree) {
+      updatePathLookup(fileTree)
+    }
+  }, [fileTree, updatePathLookup])
 
   // Handle wikilink navigation from chat
   useEffect(() => {

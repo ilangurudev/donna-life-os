@@ -139,26 +139,33 @@ interface BlockRendererProps {
   showStreamingCursor?: boolean
 }
 
-// Convert [[wikilinks]] to clickable spans
+// Convert [[wikilinks]] to clickable spans (stores original link text for resolution at click time)
 function processWikiLinks(content: string): string {
   return content.replace(/\[\[([^\]]+)\]\]/g, (_, linkText) => {
-    // Convert link text to a path (lowercase, replace spaces with hyphens)
-    const path = linkText.toLowerCase().replace(/\s+/g, '-') + '.md'
-    return `<span class="wiki-link-chat" data-path="${path}" data-display="${linkText}">${linkText}</span>`
+    // Store the original link text - resolution happens at click time
+    return `<span class="wiki-link-chat" data-link="${linkText}">${linkText}</span>`
   })
 }
 
 function BlockRenderer({ block, isUser, showStreamingCursor }: BlockRendererProps) {
-  const { navigateToNote } = useNotesNav()
+  const { navigateToNote, resolveWikiLink } = useNotesNav()
 
   const handleWikiClick = useCallback((e: React.MouseEvent<HTMLSpanElement>) => {
-    const path = e.currentTarget.dataset.path
-    if (path) {
+    const linkText = e.currentTarget.dataset.link
+    if (linkText) {
       e.preventDefault()
       e.stopPropagation()
-      navigateToNote(path)
+      // Resolve the wikilink to a full path using the file tree lookup
+      const resolvedPath = resolveWikiLink(linkText)
+      if (resolvedPath) {
+        navigateToNote(resolvedPath)
+      } else {
+        // Fallback to simple conversion if not found in lookup
+        const fallbackPath = linkText.toLowerCase().replace(/\s+/g, '-') + '.md'
+        navigateToNote(fallbackPath)
+      }
     }
-  }, [navigateToNote])
+  }, [navigateToNote, resolveWikiLink])
 
   // Custom components for ReactMarkdown
   const components: Components = {
