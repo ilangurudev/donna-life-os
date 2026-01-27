@@ -170,7 +170,10 @@ async def process_agent_response(
 async def chat_websocket(websocket: WebSocket):
     """
     WebSocket endpoint for chat with the Donna agent.
-    
+
+    Query Parameters:
+    - timezone: IANA timezone string (e.g., "America/New_York")
+
     Protocol:
     - Client sends: {"type": "message", "content": "...", "devMode": bool}
     - Client sends: {"type": "permission_response", "allowed": bool}
@@ -191,16 +194,22 @@ async def chat_websocket(websocket: WebSocket):
             await websocket.accept()
             await websocket.close(code=4001, reason="Authentication required")
             return
-    
+
+    # Extract timezone from query parameters
+    client_timezone = websocket.query_params.get("timezone")
+
     await websocket.accept()
-    
+
     permission_handler = WebSocketPermissionHandler(websocket)
     donna: DonnaAgent | None = None
     dev_mode = True
-    
+
     try:
-        # Initialize the agent
-        donna = DonnaAgent(on_permission_request=permission_handler.handle_permission)
+        # Initialize the agent with client timezone
+        donna = DonnaAgent(
+            on_permission_request=permission_handler.handle_permission,
+            client_timezone=client_timezone,
+        )
         await donna.__aenter__()
         
         # Send the automatic greeting
