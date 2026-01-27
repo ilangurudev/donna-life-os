@@ -193,14 +193,20 @@ async def chat_websocket(websocket: WebSocket):
             return
     
     await websocket.accept()
-    
+
+    # Get user timezone from query params (detected by browser)
+    user_timezone = websocket.query_params.get("timezone")
+
     permission_handler = WebSocketPermissionHandler(websocket)
     donna: DonnaAgent | None = None
     dev_mode = True
-    
+
     try:
-        # Initialize the agent
-        donna = DonnaAgent(on_permission_request=permission_handler.handle_permission)
+        # Initialize the agent with user's timezone
+        donna = DonnaAgent(
+            on_permission_request=permission_handler.handle_permission,
+            user_timezone=user_timezone,
+        )
         await donna.__aenter__()
         
         # Send the automatic greeting

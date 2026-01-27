@@ -8,8 +8,10 @@ Uses async event-based permission handling for flexibility.
 import asyncio
 import shutil
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import AsyncGenerator, Callable, Awaitable, Dict, Any
+from zoneinfo import ZoneInfo
 import yaml
 
 from claude_agent_sdk import (
@@ -113,6 +115,58 @@ def load_user_info_and_preferences() -> Dict[str, Any]:
     return {}
 
 
+def generate_date_context(user_timezone: str | None = None) -> str:
+    """
+    Generate date/time context for the system prompt.
+
+    Args:
+        user_timezone: IANA timezone string (e.g., "America/New_York").
+                       If None, uses system local timezone.
+
+    Returns:
+        Formatted string with current date/time information for Donna.
+    """
+    utc_now = datetime.now(timezone.utc)
+
+    # Get user's local time
+    if user_timezone:
+        try:
+            user_tz = ZoneInfo(user_timezone)
+        except Exception:
+            # Invalid timezone, fall back to UTC
+            user_tz = timezone.utc
+            user_timezone = "UTC"
+    else:
+        # No timezone provided, use system local
+        user_tz = datetime.now().astimezone().tzinfo
+        user_timezone = str(user_tz)
+
+    local_now = utc_now.astimezone(user_tz)
+
+    # Calculate useful date references
+    day_of_week = local_now.strftime("%A")
+
+    return f"""## Current Date & Time
+
+**Right now for the user:**
+- Date: {local_now.strftime("%A, %B %d, %Y")}
+- Time: {local_now.strftime("%I:%M %p")} ({user_timezone})
+- Week number: {local_now.isocalendar()[1]}
+
+**For storage (always use UTC):**
+- UTC timestamp: {utc_now.strftime("%Y-%m-%dT%H:%M:%SZ")}
+- Today's date (UTC): {utc_now.strftime("%Y-%m-%d")}
+
+**Date handling rules:**
+- When user says "today" → {local_now.strftime("%Y-%m-%d")}
+- When user says "tomorrow" → calculate from today
+- When user says a day name (e.g., "Wednesday") → find the NEXT occurrence from today ({day_of_week})
+- When user says "next [day]" → skip this week, use the following week's occurrence
+- Always store dates in YYYY-MM-DD format
+- Always store timestamps in UTC ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ)
+"""
+
+
 def get_user_name() -> str:
     """Get the user's name from preferences, or 'there' as fallback."""
     prefs = load_user_info_and_preferences()
@@ -184,41 +238,46 @@ def load_system_prompt() -> str:
     return prompt_path.read_text()
 
 
-def build_full_system_prompt() -> str:
+def build_full_system_prompt(user_timezone: str | None = None) -> str:
     """
-    Build the full system prompt including user preferences and current context.
-    
+    Build the full system prompt including user preferences, current context, and date.
+
+    Args:
+        user_timezone: IANA timezone string from the user's browser (e.g., "America/New_York").
+                       If None, falls back to system local timezone.
+
     Returns:
         Complete system prompt with context injected.
     """
     base_prompt = load_system_prompt()
-    
+
     # Load user preferences
     prefs_content = ""
     if USER_PREFERENCES_FILE.exists():
         prefs_content = USER_PREFERENCES_FILE.read_text()
-    
+
     # Load current context
     current_context = load_current_context()
-    
+
     # Build the full prompt with context
     full_prompt = base_prompt
-    
+
+    # Add date/time context FIRST (most important for temporal reasoning)
+    full_prompt += "\n\n" + generate_date_context(user_timezone)
+
     # Add user info and preferences section
     if prefs_content:
         full_prompt += f"""
-
 ## User Info and Preferences (from user_info_and_preferences.md)
 
 IMPORTANT: Use the `name` from frontmatter when addressing the user. Use the `communication_style` to adjust your personality.
 
 {prefs_content}
 """
-    
+
     # Add current context section
     if current_context.strip():
         full_prompt += f"""
-
 ## Current Active Context (from current_context.md)
 
 These are the topics/items the user is currently focused on. Reference these when relevant:
@@ -227,12 +286,11 @@ These are the topics/items the user is currently focused on. Reference these whe
 """
     else:
         full_prompt += """
-
 ## Current Active Context
 
 No active context items. This may be a new user or a fresh start.
 """
-    
+
     return full_prompt
 
 
@@ -295,10 +353,11 @@ class DonnaAgent:
         allowed_tools: list[str] | None = None,
         max_thinking_tokens: int | None = None,
         auto_greet: bool = True,
+        user_timezone: str | None = None,
     ):
         """
         Initialize the Donna agent.
-        
+
         Args:
             on_permission_request: Async callback that receives PermissionRequest.
                                    Return True to allow, False to deny.
@@ -308,12 +367,15 @@ class DonnaAgent:
             max_thinking_tokens: Token budget for extended thinking (default from config)
             auto_greet: If True, automatically send a greeting when session starts.
                         The interface should call receive_response() to get it.
+            user_timezone: IANA timezone string from the user's browser (e.g., "America/New_York").
+                           If None, falls back to system local timezone.
         """
         self._on_permission_request = on_permission_request
         self._model = model or MODEL
         self._allowed_tools = allowed_tools or ALLOWED_TOOLS
         self._max_thinking_tokens = max_thinking_tokens if max_thinking_tokens is not None else MAX_THINKING_TOKENS
         self._auto_greet = auto_greet
+        self._user_timezone = user_timezone
         self._client: ClaudeSDKClient | None = None
         self._greeting_sent = False
     
@@ -349,8 +411,8 @@ class DonnaAgent:
     
     async def __aenter__(self) -> "DonnaAgent":
         """Enter the async context manager, initializing the Claude client."""
-        # Build full system prompt with user preferences and current context injected
-        full_prompt = build_full_system_prompt()
+        # Build full system prompt with user preferences, current context, and date/time
+        full_prompt = build_full_system_prompt(user_timezone=self._user_timezone)
         
         # Get the src directory path for cwd (where .claude/ skills live)
         src_dir = str(Path(__file__).parent)
