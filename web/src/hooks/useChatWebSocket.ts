@@ -29,8 +29,10 @@ export function useChatWebSocket() {
     if (wsRef.current?.readyState === WebSocket.OPEN) return
 
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-    const wsUrl = `${protocol}//${window.location.host}/ws/chat`
-    
+    // Get browser timezone (IANA format like "America/New_York")
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+    const wsUrl = `${protocol}//${window.location.host}/ws/chat?timezone=${encodeURIComponent(timezone)}`
+
     const ws = new WebSocket(wsUrl)
     wsRef.current = ws
 
