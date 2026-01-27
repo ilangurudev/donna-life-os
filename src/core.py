@@ -164,19 +164,23 @@ def generate_date_context(user_timezone: str | None = None) -> str:
 - UTC timestamp: {utc_now.strftime("%Y-%m-%dT%H:%M:%SZ")}
 - UTC date: {utc_now.strftime("%Y-%m-%d")} ({utc_day_name}, ISO: {utc_iso_weekday})
 
-**Quick reference for calculations:**
+**Quick reference for calculations (user's local timezone):**
 - Today ({local_day_name}): {local_now.strftime("%Y-%m-%d")}
 - Tomorrow ({tomorrow.strftime("%A")}): {tomorrow.strftime("%Y-%m-%d")}
 - Days until Sunday: {7 - local_iso_weekday if local_iso_weekday < 7 else 0}
 - Days until next Monday: {(8 - local_iso_weekday) % 7 or 7}
 
-**Date handling rules:**
+**Storage rules:**
+- Date-only fields (due_date, target_date): Use user's LOCAL date (YYYY-MM-DD)
+  - "Wednesday deadline" → due_date: {(local_now + timedelta(days=(3 - local_iso_weekday) % 7 or 7)).strftime("%Y-%m-%d")} (user means THEIR Wednesday)
+- Timestamp fields (created, last_updated): Use UTC (YYYY-MM-DDTHH:MM:SSZ)
+  - created: {utc_now.strftime("%Y-%m-%dT%H:%M:%SZ")}
+
+**Date interpretation rules:**
 - When user says "today" → {local_now.strftime("%Y-%m-%d")}
 - When user says "tomorrow" → {tomorrow.strftime("%Y-%m-%d")}
 - When user says a day name (e.g., "Wednesday") → find the NEXT occurrence from today ({local_day_name})
 - When user says "next [day]" → skip this week, use the following week's occurrence
-- Always store dates in YYYY-MM-DD format
-- Always store timestamps in UTC ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ)
 """
 
 
