@@ -79,7 +79,7 @@ All data lives in `~/donna-data/`. User owns their data completely.
 - "The deadline was moved to the 3rd (2026-02-03)"
 - "We met last Tuesday (2026-01-20)"
 
-Use ISO 8601: `YYYY-MM-DD` for dates, `YYYY-MM-DDTHH:MM:SS±HH:MM` for timestamps. This ensures dates can be searched/grepped later. See `guides/handling_time.md` for full details.
+Use ISO 8601: `YYYY-MM-DD` for dates, `YYYY-MM-DDTHH:MM:SS±HH:MM` for timestamps. This ensures dates can be searched/grepped later.
 
 ## Preserving History
 
