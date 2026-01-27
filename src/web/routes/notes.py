@@ -9,8 +9,14 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query
+from pydantic import BaseModel
 
 from ..utils.markdown import build_file_tree, parse_note, resolve_wiki_link, parse_frontmatter
+
+
+class NoteContent(BaseModel):
+    """Request body for updating note content."""
+    content: str
 
 # Import config - handle both package and direct execution
 try:
@@ -177,14 +183,72 @@ async def get_note(path: str) -> dict[str, Any]:
     }
 
 
+@router.put("/{path:path}")
+async def update_note(path: str, body: NoteContent) -> dict[str, Any]:
+    """
+    Update a note's content.
+
+    Args:
+        path: Relative path to the note (e.g., "tasks/order-crib.md")
+        body: Request body containing the new content
+
+    Returns:
+        Updated parsed note with frontmatter, content, and wiki links
+    """
+    # Ensure .md extension
+    if not path.endswith(".md"):
+        path = f"{path}.md"
+
+    note_path = DONNA_DATA_DIR / path
+
+    # Security: ensure path is within ~/donna-data
+    try:
+        note_path = note_path.resolve()
+        if not str(note_path).startswith(str(DONNA_DATA_DIR.resolve())):
+            raise HTTPException(status_code=403, detail="Access denied")
+    except Exception:
+        raise HTTPException(status_code=403, detail="Invalid path")
+
+    if not note_path.exists():
+        raise HTTPException(status_code=404, detail=f"Note not found: {path}")
+
+    if not note_path.is_file():
+        raise HTTPException(status_code=400, detail="Path is not a file")
+
+    # Write the new content
+    try:
+        note_path.write_text(body.content)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error writing note: {e}")
+
+    # Parse and return the updated note
+    parsed = parse_note(body.content)
+
+    # Resolve wiki links to actual paths
+    resolved_links = {}
+    for link in parsed.wiki_links:
+        resolved = resolve_wiki_link(link, DONNA_DATA_DIR)
+        if resolved:
+            resolved_links[link] = resolved
+
+    return {
+        "path": path,
+        "frontmatter": parsed.frontmatter,
+        "content": parsed.content,
+        "raw": parsed.raw,
+        "wiki_links": parsed.wiki_links,
+        "resolved_links": resolved_links,
+    }
+
+
 @router.get("/resolve/{link:path}")
 async def resolve_link(link: str) -> dict[str, str | None]:
     """
     Resolve a wiki link to a file path.
-    
+
     Args:
         link: Wiki link text (e.g., "Baby Prep" or "tasks/order-crib")
-        
+
     Returns:
         The resolved file path, or null if not found
     """

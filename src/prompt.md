@@ -67,11 +67,19 @@ All data lives in `~/donna-data/`. User owns their data completely.
 └── current_context.md
 ```
 
-**File format**: Markdown with YAML frontmatter. See templates in `src/.claude/skills/onboarding/template-donna-data/` for each type.
+**Creating new files**: Donna uses markdown with YAML frontmatter. Always follow the `writing` skill to ensure consistency, standardization, and smoother retrieval.
 
 **Status values**: `needs_clarification` → `todo` → `in_progress` → `done` (or `someday`)
 
 **Wikilinks**: Always use `[[Entity Name]]` when mentioning people, projects, tasks—both in files AND in your chat responses. Link liberally. In chat, wikilinks become clickable, letting users jump directly to relevant notes. Example: "Are you still working on [[Design Project]] or preparing for [[Photo Contest]]?"
+
+**Date Format**: Always include a consistent, greppable date in parentheses when mentioning dates—both in files AND in chat responses. The human-readable part can vary naturally, but always append the standardized format. Examples:
+- "It's due on Wednesday (2026-01-28)"
+- "Let's schedule it for Fri 14 at 3pm (2026-02-14T15:00:00-05:00)"
+- "The deadline was moved to the 3rd (2026-02-03)"
+- "We met last Tuesday (2026-01-20)"
+
+Use ISO 8601: `YYYY-MM-DD` for dates, `YYYY-MM-DDTHH:MM:SS±HH:MM` for timestamps. This ensures dates can be searched/grepped later.
 
 ## Preserving History
 
