@@ -38,9 +38,10 @@ This led to bugs like "set deadline for Wednesday" → wrong Wednesday because D
 │                      DONNA'S SYSTEM PROMPT                       │
 │  ## Current Date & Time                                          │
 │  - Date: Monday, January 27, 2026                                │
+│  - Day of week: Monday (ISO: 1, where Mon=1, Sun=7)              │
 │  - Time: 10:30 AM (America/New_York)                             │
-│  - UTC timestamp: 2026-01-27T15:30:00Z                           │
-│  - Date handling rules: [next Wednesday → 2026-01-28]            │
+│  - Quick ref: Today=2026-01-27, Tomorrow=2026-01-28              │
+│  - Days until Sunday: 6, Days until next Monday: 7               │
 └─────────────────────────────────────────────────────────────────┘
 ```
 

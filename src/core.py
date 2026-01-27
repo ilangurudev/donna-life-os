@@ -8,7 +8,7 @@ Uses async event-based permission handling for flexibility.
 import asyncio
 import shutil
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import AsyncGenerator, Callable, Awaitable, Dict, Any
 from zoneinfo import ZoneInfo
@@ -144,23 +144,36 @@ def generate_date_context(user_timezone: str | None = None) -> str:
     local_now = utc_now.astimezone(user_tz)
 
     # Calculate useful date references
-    day_of_week = local_now.strftime("%A")
+    local_day_name = local_now.strftime("%A")
+    local_iso_weekday = local_now.isoweekday()  # 1=Monday, 7=Sunday
+    utc_day_name = utc_now.strftime("%A")
+    utc_iso_weekday = utc_now.isoweekday()
+
+    # Calculate tomorrow for quick reference
+    tomorrow = local_now + timedelta(days=1)
 
     return f"""## Current Date & Time
 
 **Right now for the user:**
 - Date: {local_now.strftime("%A, %B %d, %Y")}
+- Day of week: {local_day_name} (ISO: {local_iso_weekday}, where Mon=1, Sun=7)
 - Time: {local_now.strftime("%I:%M %p")} ({user_timezone})
 - Week number: {local_now.isocalendar()[1]}
 
 **For storage (always use UTC):**
 - UTC timestamp: {utc_now.strftime("%Y-%m-%dT%H:%M:%SZ")}
-- Today's date (UTC): {utc_now.strftime("%Y-%m-%d")}
+- UTC date: {utc_now.strftime("%Y-%m-%d")} ({utc_day_name}, ISO: {utc_iso_weekday})
+
+**Quick reference for calculations:**
+- Today ({local_day_name}): {local_now.strftime("%Y-%m-%d")}
+- Tomorrow ({tomorrow.strftime("%A")}): {tomorrow.strftime("%Y-%m-%d")}
+- Days until Sunday: {7 - local_iso_weekday if local_iso_weekday < 7 else 0}
+- Days until next Monday: {(8 - local_iso_weekday) % 7 or 7}
 
 **Date handling rules:**
 - When user says "today" → {local_now.strftime("%Y-%m-%d")}
-- When user says "tomorrow" → calculate from today
-- When user says a day name (e.g., "Wednesday") → find the NEXT occurrence from today ({day_of_week})
+- When user says "tomorrow" → {tomorrow.strftime("%Y-%m-%d")}
+- When user says a day name (e.g., "Wednesday") → find the NEXT occurrence from today ({local_day_name})
 - When user says "next [day]" → skip this week, use the following week's occurrence
 - Always store dates in YYYY-MM-DD format
 - Always store timestamps in UTC ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ)
