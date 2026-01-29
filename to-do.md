@@ -11,3 +11,4 @@
 11. file search - exhaustive / simple. 
 12. hooks for preloading into search
 13. remove template files (read from write skill folder instead.)
+14 toggle clean and dev should work better. dev should also display what subagents return

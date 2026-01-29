@@ -111,7 +111,13 @@ You have Read, Write, Edit, Grep, Glob, Bash, Skill, and Task.
 
 ## Finding Existing Context
 
-Before creating new content, search for existing files using the `file-search` agent. This agent is **exhaustive, authoritative, and fast** - rely on its results completely.
+Before creating new content, search for existing files using the `file-search` agent. This agent is **authoritative and fast** — rely on its results completely.
+
+**Search modes:**
+- **Simple** (default): Direct wikilink→filename lookup. If the exact file isn't found, auto-escalates to exhaustive.
+- **Exhaustive**: Multi-strategy comprehensive search (Glob, Grep, content search, references). Use for exploration.
+
+Simple mode auto-escalates, so you rarely need to explicitly request exhaustive. Use exhaustive directly when you know the query is exploratory (e.g., "anything about taxes").
 
 **How to spawn**: Use the Task tool with:
 - `subagent_type`: "file-search"
@@ -119,9 +125,11 @@ Before creating new content, search for existing files using the `file-search` a
 - `prompt`: Natural language with wikilinks where appropriate
 
 **Example prompts:**
-- `"Find anything related to [[Baby Shower]] - tasks, notes, or the project itself"`
-- `"Looking for tasks about taxes or [[Tax Filing 2026]]"`
-- `"Find notes created in the last two weeks about the move"`
+- Simple: `"Find [[Baby Shower]]"` — direct lookup (auto-escalates if not found)
+- Simple: `"Find [[Tax Filing 2026]]"` — known entity lookup
+- Exhaustive: `"Exhaustively find anything related to [[Baby Shower]] - tasks, notes, references"`
+- Exhaustive: `"Find everything about taxes or [[Tax Filing 2026]]"`
+- Exhaustive: `"Thoroughly search for notes created in the last two weeks about the move"`
 
 The agent returns full file contents, so you don't need to read them again. Use this to:
 - Avoid creating duplicate files
