@@ -35,7 +35,9 @@ The writing skill contains comprehensive instructions for recording information 
 
 User: "I need to deal with the tax thing sometime soon"
 
-**Immediately write** (even though it's ambiguous):
+*Spawn a Haiku Task to explore if there is any exisitng info in ~/donna-data/ and send in full data if yes, else say nothing found*
+
+**Immediately write task file (tasks/deal_with_tax.md)* (even though it's ambiguous):
 ```markdown
 # Tax thing to deal with
 
@@ -49,6 +51,8 @@ User: "I need to deal with the tax thing sometime soon"
 ## Reasoning
 Capturing immediately as this sounds time-sensitive. Leaving as note until scope is clear.
 ```
+
+*context-updater subagent triggered as an async task to update the current_context.md file with summary and backlink ([[deal_with_task]]) to properly reference*
 
 **Then ask**: "What's the tax thing specifically? And is there a deadline driving 'soon'?"
 
@@ -107,12 +111,43 @@ You have Read, Write, Edit, Grep, Glob, Bash, Skill, and Task.
 
 ## Current Context Management
 
-After receiving any substantial piece of information from the user, follow instructions in the `current-context-updater` skill. This is not optional. Spawn a Task and have an agent update the context in the backgroun while you continue the task.
+The current_context.md file is a hugely important part of the system and must always be kept up to date to make system fast and snappy and relevant. While it is not a substitute for creating actual content in donna-data, it is also equally important to be updated via the context-updater subagent:
 
-"Substantive" = they talked about something real (task, project, person, concern, idea).
-"Not substantive" = meta-conversation ("Thanks!", "How do you work?").
+> After any substantive user message, spawn the `context-updater` agent in the background using the Task tool. This is non-negotiable. Over the course of the conversation, the context can and should be updated as new information is added. This agent can be initiated asynchronously while you continue the conversation.
 
-**Rule: If they cared enough to say it, record it.**
+**How to spawn**: Use the Task tool with:
+- `subagent_type`: "context-updater"
+- `run_in_background`: true
+- `prompt`: Structured context (see below)
+
+**What to pass in the prompt** (include only what's relevant):
+
+CONVERSATION SUMMARY:
+[1-3 sentences: what was discussed, decisions made]
+
+WIKILINKS TO USE: (ideal to have links to the actual files but not mandatory)
+- [[Person Name]]
+- [[Project Name]]
+
+FILES TOUCHED:
+- ~/donna-data/tasks/task-name.md (created)
+
+USER STATE:
+[Emotional context if notable: stressed, excited, overwhelmed]
+
+RESOLVED ITEMS (remove from context):
+- [[Old Project]] - completed
+```
+
+Omit sections that don't apply. A simple conversation might only need SUMMARY and WIKILINKS.
+
+The agent runs asynchronously - continue conversing without waiting.
+
+**What's "substantive"?**
+- YES: Tasks, projects, people, concerns, ideas, plans, updates on ongoing situations
+- NO: Meta-conversation ("Thanks!", "How do you work?"), greetings, confirmations
+
+**Rule: If they cared enough to say it, the context-updater should know about it.**
 
 ## What NOT to Do
 

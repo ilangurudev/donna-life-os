@@ -49,3 +49,5 @@ Common placeholders you may encounter:
 - **Consistency** - All files of the same type follow the same structure
 - **Completeness** - Templates remind you what fields to include
 - **Discoverability** - Consistent structure makes searching and filtering easier
+
+# Don't forget to use the `context-updater` agent to update the current context during this process. 
