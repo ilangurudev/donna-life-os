@@ -128,8 +128,8 @@ def build_file_tree(notes_dir: Path) -> dict:
         Nested dict representing the file tree
     """
     def build_node(path: Path, base: Path) -> dict | None:
-        # Skip hidden files and directories
-        if path.name.startswith("."):
+        # Skip hidden files and directories, and template files
+        if path.name.startswith(".") or path.name.endswith("_template.md"):
             return None
         
         rel_path = str(path.relative_to(base))

@@ -6,10 +6,13 @@ Handles real-time communication with the Donna agent.
 
 import asyncio
 import json
+import logging
 from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+
+logger = logging.getLogger(__name__)
 
 from claude_agent_sdk import (
     AssistantMessage,
@@ -111,8 +114,12 @@ async def process_agent_response(
         Session stats from ResultMessage, or None
     """
     result_stats = None
-    
+    message_count = 0
+
+    logger.info("[CHAT] Starting to receive response from agent")
     async for message in donna.receive_response():
+        message_count += 1
+        logger.info(f"[CHAT] Received message {message_count}: {type(message).__name__}")
         if isinstance(message, AssistantMessage):
             for block in message.content:
                 # Handle thinking/reasoning blocks
@@ -121,7 +128,7 @@ async def process_agent_response(
                         await send_message_event(websocket, "thinking", {
                             "content": block.thinking
                         })
-                
+
                 # Handle tool use blocks
                 elif isinstance(block, ToolUseBlock):
                     if dev_mode:
@@ -129,7 +136,7 @@ async def process_agent_response(
                             "name": block.name,
                             "input": block.input,
                         })
-                
+
                 # Handle tool result blocks
                 elif isinstance(block, ToolResultBlock):
                     if dev_mode:
@@ -143,12 +150,12 @@ async def process_agent_response(
                                 else:
                                     texts.append(str(item))
                             content = "\n".join(texts)
-                        
+
                         await send_message_event(websocket, "tool_result", {
                             "content": str(content) if content else "",
                             "isError": block.is_error,
                         })
-                
+
                 # Handle text blocks (the actual response)
                 elif isinstance(block, TextBlock):
                     await send_message_event(websocket, "text", {
@@ -163,6 +170,7 @@ async def process_agent_response(
                 "cost_usd": message.total_cost_usd,
             }
     
+    logger.info(f"[CHAT] Finished receiving response, total messages: {message_count}")
     return result_stats
 
 
@@ -213,11 +221,14 @@ async def chat_websocket(websocket: WebSocket):
         await donna.__aenter__()
         
         # Send the automatic greeting
+        logger.info("[CHAT] Sending greeting_start, processing greeting response")
         await send_message_event(websocket, "greeting_start", {})
         stats = await process_agent_response(donna, websocket, dev_mode)
+        logger.info(f"[CHAT] Greeting completed, stats: {stats}")
         if stats:
             await send_message_event(websocket, "session_end", {"stats": stats})
-        
+
+        logger.info("[CHAT] Entering main message loop")
         # Main message loop
         while True:
             try:
@@ -233,15 +244,28 @@ async def chat_websocket(websocket: WebSocket):
             if msg_type == "message":
                 content = data.get("content", "").strip()
                 dev_mode = data.get("devMode", True)
-                
+
                 if not content:
                     continue
-                
+
                 # Send user message to agent
-                await donna.send_message(content)
-                
+                logger.info(f"[CHAT] Sending message to agent: {content[:50]}...")
+                try:
+                    await donna.send_message(content)
+                    logger.info("[CHAT] send_message completed successfully")
+                except Exception as e:
+                    logger.error(f"[CHAT] send_message failed: {e}")
+                    raise
+
                 # Process and stream response
-                stats = await process_agent_response(donna, websocket, dev_mode)
+                logger.info("[CHAT] Starting process_agent_response")
+                try:
+                    stats = await process_agent_response(donna, websocket, dev_mode)
+                    logger.info(f"[CHAT] process_agent_response completed, stats: {stats}")
+                except Exception as e:
+                    logger.error(f"[CHAT] process_agent_response failed: {e}")
+                    raise
+
                 if stats:
                     await send_message_event(websocket, "session_end", {"stats": stats})
             

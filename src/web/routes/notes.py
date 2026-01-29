@@ -79,7 +79,11 @@ async def list_recent_notes(
         # Skip hidden files
         if any(part.startswith(".") for part in md_file.parts):
             continue
-        
+
+        # Skip template files
+        if md_file.name.endswith("_template.md"):
+            continue
+
         try:
             stat = md_file.stat()
             rel_path = str(md_file.relative_to(DONNA_DATA_DIR))

@@ -6,6 +6,7 @@ Uses async event-based permission handling for flexibility.
 """
 
 import asyncio
+import logging
 import shutil
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
@@ -13,6 +14,8 @@ from pathlib import Path
 from typing import AsyncGenerator, Callable, Awaitable, Dict, Any
 from zoneinfo import ZoneInfo
 import yaml
+
+logger = logging.getLogger(__name__)
 
 from tzlocal import get_localzone
 
@@ -537,30 +540,45 @@ class DonnaAgent:
     async def send_message(self, text: str) -> None:
         """
         Send a message to the agent.
-        
+
         Args:
             text: The user's message text
-            
+
         Raises:
             RuntimeError: If called outside of async context manager
         """
         if self._client is None:
             raise RuntimeError("DonnaAgent must be used as an async context manager")
-        
-        await self._client.query(create_user_message(text))
+
+        logger.info(f"[CORE] send_message called: {text[:50]}...")
+        try:
+            await self._client.query(create_user_message(text))
+            logger.info("[CORE] _client.query() completed")
+        except Exception as e:
+            logger.error(f"[CORE] _client.query() failed: {e}")
+            raise
     
     async def receive_response(self) -> AsyncGenerator[AssistantMessage, None]:
         """
         Receive streaming responses from the agent.
-        
+
         Yields:
             AssistantMessage objects containing the response
-            
+
         Raises:
             RuntimeError: If called outside of async context manager
         """
         if self._client is None:
             raise RuntimeError("DonnaAgent must be used as an async context manager")
-        
-        async for message in self._client.receive_response():
-            yield message
+
+        logger.info("[CORE] receive_response called, starting to iterate")
+        message_count = 0
+        try:
+            async for message in self._client.receive_response():
+                message_count += 1
+                logger.info(f"[CORE] Yielding message {message_count}: {type(message).__name__}")
+                yield message
+            logger.info(f"[CORE] receive_response completed, yielded {message_count} messages")
+        except Exception as e:
+            logger.error(f"[CORE] receive_response failed after {message_count} messages: {e}")
+            raise
