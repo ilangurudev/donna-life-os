@@ -6,4 +6,4 @@
 7. No notes are lost
 8. current context skill
 9. app updates current context but not otiginal file
-10 have the web chat send out clickable wikilinks
+10. logs and traceability
