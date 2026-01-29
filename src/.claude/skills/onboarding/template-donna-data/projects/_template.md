@@ -12,7 +12,7 @@ Brief description of the project and its goal.
 
 ## Tasks
 
-- [[Task Name]] - status/due date
+- [[Task Name]] - brief description (optional)
 
 ## Related
 

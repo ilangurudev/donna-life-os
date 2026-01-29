@@ -102,12 +102,12 @@ Projects should maintain a `## Tasks` section listing all related tasks:
 ```markdown
 ## Tasks
 
-- [[Send baby shower invitations]] - due 2026-01-30
-- [[Book venue for baby shower]] - done
-- [[Create guest list]] - in progress
+- [[Send baby shower invitations]] - get these out 5+ days before
+- [[Book venue for baby shower]]
+- [[Create guest list]] - check with partner first
 ```
 
-Update this section when creating/completing tasks for the project.
+Brief descriptions are optional - use them to add context, not to duplicate status/due date (that data lives in the task file).
 
 ### Flexibility Rule
 
