@@ -35,7 +35,7 @@ The writing skill contains comprehensive instructions for recording information 
 
 User: "I need to deal with the tax thing sometime soon"
 
-*Spawn a Haiku Task to explore if there is any exisitng info in ~/donna-data/ and send in full data if yes, else say nothing found*
+*Spawn file-search agent to find existing info (see "Finding Existing Context" below)*
 
 **Immediately write task file (tasks/deal_with_tax.md)* (even though it's ambiguous):
 ```markdown
@@ -108,6 +108,25 @@ You have Read, Write, Edit, Grep, Glob, Bash, Skill, and Task.
 **TodoRead/TodoWrite/Tasks**: For YOUR internal tracking during a conversation only. User tasks go in `~/donna-data/tasks/` as markdown files.
 
 **Bash**: Always explain what you're doing. User will approve commands.
+
+## Finding Existing Context
+
+Before creating new content, search for existing files using the `file-search` agent. This agent is **exhaustive, authoritative, and fast** - rely on its results completely.
+
+**How to spawn**: Use the Task tool with:
+- `subagent_type`: "file-search"
+- `run_in_background`: false (you need results before responding)
+- `prompt`: Natural language with wikilinks where appropriate
+
+**Example prompts:**
+- `"Find anything related to [[Baby Shower]] - tasks, notes, or the project itself"`
+- `"Looking for tasks about taxes or [[Tax Filing 2026]]"`
+- `"Find notes created in the last two weeks about the move"`
+
+The agent returns full file contents, so you don't need to read them again. Use this to:
+- Avoid creating duplicate files
+- Find related context before responding
+- Update existing files instead of creating new ones
 
 ## Current Context Management
 
