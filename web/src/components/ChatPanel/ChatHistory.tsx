@@ -1,9 +1,10 @@
 import { useCallback } from 'react'
-import { User, Bot, Loader2 } from 'lucide-react'
+import { User, Bot } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
 import { ThinkingBlock } from './ThinkingBlock'
+import { ThinkingIndicator } from './ThinkingIndicator'
 import { ToolCallBlock } from './ToolCallBlock'
 import { useDevMode } from '../../stores/useDevMode'
 import { useNotesNav } from '../../stores/useNotesNav'
@@ -54,12 +55,7 @@ export function ChatHistory({ messages, currentMessage, isLoading }: ChatHistory
       )}
 
       {/* Loading indicator when waiting but no current message */}
-      {isLoading && !currentMessage && (
-        <div className="flex items-center gap-2 text-donna-text-muted">
-          <Loader2 className="h-4 w-4 animate-spin" />
-          <span className="text-sm">Thinking...</span>
-        </div>
-      )}
+      {isLoading && !currentMessage && <ThinkingIndicator />}
     </div>
   )
 }
@@ -122,12 +118,7 @@ function MessageBubble({ message, devMode, isStreaming }: MessageBubbleProps) {
         ))}
 
         {/* Streaming indicator for empty content */}
-        {isStreaming && !hasVisibleContent && (
-          <div className="flex items-center gap-2 text-donna-text-muted">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            <span className="text-sm">Thinking...</span>
-          </div>
-        )}
+        {isStreaming && !hasVisibleContent && <ThinkingIndicator />}
       </div>
     </div>
   )
