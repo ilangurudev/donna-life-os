@@ -7,3 +7,7 @@
 8. current context skill
 9. app updates current context but not otiginal file
 10. logs and traceability
+
+11. file search - exhaustive / simple. 
+12. hooks for preloading into search
+13. remove template files (read from write skill folder instead.)
