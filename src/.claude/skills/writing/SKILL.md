@@ -7,6 +7,16 @@ description: Guidelines for creating new markdown files in donna-data
 
 This skill provides guidelines for creating new markdown files in `~/donna-data/`.
 
+## Content Type Definitions
+
+**Before creating any content, consult [content-types.md](./content-types.md)** to determine which content type to use. Key principles:
+
+- **Task**: Single action, completable in one session
+- **Project**: Multi-step initiative with deadline/event (suggest tasks on creation!)
+- **Note**: Information without clear action (yet)
+- **Goal**: Aspirational outcome measured over time
+- **Current Context**: Working memory - NEVER a substitute for creating actual content
+
 ## Using Templates
 
 **Always check for a `_template.md` file** in the target directory before creating new content.

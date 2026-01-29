@@ -10,9 +10,13 @@ tags: []
 
 Brief description of the project and its goal.
 
+## Tasks
+
+- [[Task Name]] - brief description (optional)
+
 ## Related
 
-- Person: [[Person Name]]
+- [[Person Name]]
 
 ## {{DATE}} - Initial capture
 
