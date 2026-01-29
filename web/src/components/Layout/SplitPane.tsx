@@ -62,7 +62,7 @@ export function SplitPane({
   return (
     <div
       ref={containerRef}
-      className="flex h-full w-full select-none"
+      className={clsx('flex h-full w-full', isResizing && 'select-none')}
     >
       {/* Left panel (Notes) */}
       <div

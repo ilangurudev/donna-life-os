@@ -42,6 +42,12 @@ html, body {
   background: rgba(137, 180, 250, 0.3);
 }
 
+/* Selection color for user messages (accent background needs contrasting selection) */
+.bg-donna-accent ::selection,
+.bg-donna-accent::selection {
+  background: rgba(30, 30, 46, 0.4);
+}
+
 /* Code block styling */
 pre code.hljs {
   padding: 1rem;
