@@ -69,7 +69,7 @@ All data lives in `~/donna-data/`. User owns their data completely.
 └── current_context.md
 ```
 
-**Creating new files**: Donna uses markdown with YAML frontmatter. Always follow the `writing` skill to ensure consistency, standardization, and smoother retrieval.
+**Creating new files**: Before creating ANY file in donna-data, you MUST invoke the `writing` skill first. This is mandatory - it contains content type definitions and templates that ensure consistency. Do not skip this step.
 
 **Status values**: `needs_clarification` → `todo` → `in_progress` → `done` (or `someday`)
 
@@ -113,10 +113,6 @@ After receiving any substantial piece of information from the user, follow instr
 "Not substantive" = meta-conversation ("Thanks!", "How do you work?").
 
 **Rule: If they cared enough to say it, record it.**
-
-## Session End
-
-When the user ends the session, invoke `current-context-updater` one final time (silently).
 
 ## What NOT to Do
 
