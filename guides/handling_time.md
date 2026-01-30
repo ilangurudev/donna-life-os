@@ -53,8 +53,8 @@ Donna had no concept of "now." When a user said "I have a deadline on Wednesday,
 
 | File | Purpose |
 |------|---------|
-| `src/core.py` | `generate_date_context()`, `get_effective_timezone()` |
-| `src/web/routes/chat.py` | Extracts timezone from WebSocket query params |
+| `donna_life_os/core.py` | `generate_date_context()`, `get_effective_timezone()` |
+| `donna_life_os/web/routes/chat.py` | Extracts timezone from WebSocket query params |
 | `web/src/hooks/useChatWebSocket.ts` | Sends browser timezone on connect |
 | `pyproject.toml` | `tzlocal>=5.2` dependency |
 
@@ -205,12 +205,12 @@ timezone: America/New_York  # IANA timezone
 1. **CLI Timezone Support**
    - CLI currently uses system timezone only
    - Should read from user preferences first
-   - Location: `src/cli.py` (needs to pass timezone to DonnaAgent)
+   - Location: `donna_life_os/cli.py` (needs to pass timezone to DonnaAgent)
 
 2. **Onboarding Timezone Detection**
    - During onboarding, Donna should note the detected timezone
    - Should offer to save it to preferences
-   - Location: `src/.claude/skills/onboarding/`
+   - Location: `donna_life_os/.claude/skills/onboarding/`
 
 3. **Timezone in User Preferences**
    - Donna should proactively update `timezone` field when detected
@@ -257,7 +257,7 @@ timezone: America/New_York  # IANA timezone
 ```bash
 # Test date context generation
 uv run python -c "
-from src.core import generate_date_context
+from donna_life_os.core import generate_date_context
 from zoneinfo import ZoneInfo
 
 # Test specific timezone

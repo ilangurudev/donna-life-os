@@ -22,7 +22,7 @@
 ```
 donna-life-os/
 ├── .claude/                 # FOR YOU (coding agent) - dev tools, code review
-├── src/
+├── donna_life_os/
 │   ├── .claude/             # FOR DONNA (runtime) - skills, user commands
 │   ├── core.py              # DonnaAgent class
 │   ├── cli.py               # Terminal interface
@@ -31,20 +31,20 @@ donna-life-os/
 └── guides/                  # Detailed documentation
 ```
 
-**Why two scopes?** The SDK loads `.claude/` from `cwd`. Donna runs from `src/`, coding agents run from root. No conflicts.
+**Why two scopes?** The SDK loads `.claude/` from `cwd`. Donna runs from `donna_life_os/`, coding agents run from root. No conflicts.
 
 ## Key Files
 
 | File | Purpose | Modify when... |
 |------|---------|----------------|
-| `src/prompt.md` | Donna's personality & behavior | Changing capabilities or personality |
-| `src/core.py` | Agent implementation | Adding tools, changing permissions |
-| `src/cli.py` | Terminal UI | Improving UX |
+| `donna_life_os/prompt.md` | Donna's personality & behavior | Changing capabilities or personality |
+| `donna_life_os/core.py` | Agent implementation | Adding tools, changing permissions |
+| `donna_life_os/cli.py` | Terminal UI | Improving UX |
 
 ## Quick Reference
 
 - **Run web**: `./start-backend` + `./start-frontend` → http://localhost:5173
-- **Run CLI**: `uv run python -m src.cli`
+- **Run CLI**: `uv run python -m donna_life_os.cli`
 - **Install**: `uv sync` (Python) / `cd web && npm install` (frontend)
 
 ## Further Reading

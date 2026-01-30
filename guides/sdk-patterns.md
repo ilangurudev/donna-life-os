@@ -8,7 +8,7 @@ Donna uses the [Claude Agent SDK](https://docs.anthropic.com/en/docs/agents-and-
 from claude_agent_sdk import ClaudeAgentOptions
 
 options = ClaudeAgentOptions(
-    system_prompt=load_system_prompt(),  # From src/prompt.md
+    system_prompt=load_system_prompt(),  # From donna_life_os/prompt.md
     model="sonnet",
     allowed_tools=["Read", "Write", "Edit", "Grep", "Glob", "Skill", "Task"],
     permission_mode="default",  # Bash requires permission callback

@@ -25,11 +25,7 @@ from claude_agent_sdk import (
     ResultMessage,
 )
 
-# Handle both direct execution and package import
-try:
-    from .core import DonnaAgent, PermissionRequest
-except ImportError:
-    from core import DonnaAgent, PermissionRequest
+from donna_life_os.core import DonnaAgent, PermissionRequest
 
 
 # Global console for the CLI

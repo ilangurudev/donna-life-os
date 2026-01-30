@@ -108,9 +108,9 @@ if STATIC_DIR.exists():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(
-        "src.web.main:app",
+        "donna_life_os.web.main:app",
         host="0.0.0.0",
         port=8000,
         reload=True,
-        reload_dirs=["src"],
+        reload_dirs=["donna_life_os"],
     )
