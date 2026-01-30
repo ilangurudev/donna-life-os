@@ -138,9 +138,9 @@ The agent returns full file contents, so you don't need to read them again. Use 
 
 ## Current Context Management
 
-The current_context.md file is a hugely important part of the system and must always be kept up to date to make system fast and snappy and relevant. While it is not a substitute for creating actual content in donna-data, it is also equally important to be updated via the context-updater subagent:
+The current_context.md file is Donna's working memory — it must always be kept up to date to make the system fast, snappy, and relevant. It is not a substitute for creating actual content in donna-data, but it is equally important.
 
-> After any substantive user message, spawn the `context-updater` agent in the background using the Task tool. This is non-negotiable. Over the course of the conversation, the context can and should be updated as new information is added. This agent can be initiated asynchronously while you continue the conversation.
+A **PostToolUse hook** automatically nudges you to run the context-updater after any Read, Write, or Edit operation. When you see that nudge, spawn the `context-updater` agent unless you've already done so for this turn. Even when no files are touched (e.g., the user just asks a question), you should still spawn it — if a topic is on the user's mind, it belongs in context.
 
 **How to spawn**: Use the Task tool with:
 - `subagent_type`: "context-updater"
@@ -169,12 +169,6 @@ RESOLVED ITEMS (remove from context):
 Omit sections that don't apply. A simple conversation might only need SUMMARY and WIKILINKS.
 
 The agent runs asynchronously - continue conversing without waiting.
-
-**What's "substantive"?**
-- YES: Tasks, projects, people, concerns, ideas, plans, updates on ongoing situations
-- NO: Meta-conversation ("Thanks!", "How do you work?"), greetings, confirmations
-
-**Rule: If they cared enough to say it, the context-updater should know about it.**
 
 ## What NOT to Do
 

@@ -23,6 +23,7 @@ from tzlocal import get_localzone
 from claude_agent_sdk import (
     ClaudeSDKClient,
     ClaudeAgentOptions,
+    HookMatcher,
     AssistantMessage,
     ResultMessage,
     TextBlock,
@@ -97,6 +98,17 @@ class ConversationLogger:
                 "total_cost_usd": getattr(message, "total_cost_usd", None),
                 "usage": getattr(message, "usage", None),
             })
+
+
+async def nudge_context_updater(input_data, tool_use_id, context):
+    """PostToolUse hook: nudge Donna to run the context-updater agent after file operations."""
+    return {
+        "systemMessage": (
+            "A file was just read or modified. If you haven't already, spawn the "
+            "context-updater agent in the background to keep current_context.md "
+            "up to date with what the user is focused on."
+        ),
+    }
 
 
 def load_current_context() -> str:
@@ -567,6 +579,15 @@ class DonnaAgent:
             max_turns=MAX_TURNS,
             # Capture CLI stderr for debugging
             stderr=lambda line: print(f"[CLI STDERR] {line}"),
+            # Hooks: nudge Donna to run context-updater after file operations
+            hooks={
+                "PostToolUse": [
+                    HookMatcher(
+                        matcher="Read|Write|Edit",
+                        hooks=[nudge_context_updater],
+                    )
+                ],
+            },
         )
         self._client = ClaudeSDKClient(options=options)
         await self._client.__aenter__()
