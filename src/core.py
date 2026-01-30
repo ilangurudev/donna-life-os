@@ -519,6 +519,8 @@ class DonnaAgent:
             # Budget limits
             max_budget_usd=MAX_BUDGET_USD,
             max_turns=MAX_TURNS,
+            # Capture CLI stderr for debugging
+            stderr=lambda line: print(f"[CLI STDERR] {line}"),
         )
         self._client = ClaudeSDKClient(options=options)
         await self._client.__aenter__()

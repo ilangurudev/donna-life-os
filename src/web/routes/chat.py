@@ -158,9 +158,11 @@ async def process_agent_response(
 
                 # Handle text blocks (the actual response)
                 elif isinstance(block, TextBlock):
-                    await send_message_event(websocket, "text", {
-                        "content": block.text
-                    })
+                    # Filter empty text and SDK artifact "(no content)" placeholder
+                    if block.text and block.text.strip() and block.text.strip() != "(no content)":
+                        await send_message_event(websocket, "text", {
+                            "content": block.text
+                        })
         
         # Capture result message for summary
         elif isinstance(message, ResultMessage):
@@ -248,26 +250,26 @@ async def chat_websocket(websocket: WebSocket):
                 if not content:
                     continue
 
-                # Send user message to agent
+                # Send user message to agent and process response
                 logger.info(f"[CHAT] Sending message to agent: {content[:50]}...")
                 try:
                     await donna.send_message(content)
                     logger.info("[CHAT] send_message completed successfully")
-                except Exception as e:
-                    logger.error(f"[CHAT] send_message failed: {e}")
-                    raise
 
-                # Process and stream response
-                logger.info("[CHAT] Starting process_agent_response")
-                try:
+                    # Process and stream response
+                    logger.info("[CHAT] Starting process_agent_response")
                     stats = await process_agent_response(donna, websocket, dev_mode)
                     logger.info(f"[CHAT] process_agent_response completed, stats: {stats}")
-                except Exception as e:
-                    logger.error(f"[CHAT] process_agent_response failed: {e}")
-                    raise
 
-                if stats:
-                    await send_message_event(websocket, "session_end", {"stats": stats})
+                    if stats:
+                        await send_message_event(websocket, "session_end", {"stats": stats})
+                except Exception as e:
+                    logger.error(f"[CHAT] Agent error during message handling: {e}")
+                    await send_message_event(websocket, "error", {
+                        "message": f"Agent error: {e}"
+                    })
+                    # Agent subprocess likely died — break out so finally block cleans up
+                    break
             
             elif msg_type == "permission_response":
                 allowed = data.get("allowed", False)

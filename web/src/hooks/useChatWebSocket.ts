@@ -10,20 +10,8 @@ const WS_CLOSE_AUTH_REQUIRED = 4001
 export function useChatWebSocket() {
   const wsRef = useRef<WebSocket | null>(null)
   const { devMode } = useDevMode()
-  
-  const {
-    setConnected,
-    startAssistantMessage,
-    appendText,
-    appendThinking,
-    addToolCall,
-    setToolResult,
-    finalizeAssistantMessage,
-    setSessionStats,
-    setPermissionRequest,
-  } = useChatStore()
-
-  const { checkAuth } = useAuthStore()
+  const devModeRef = useRef(devMode)
+  devModeRef.current = devMode
 
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) return
@@ -37,49 +25,52 @@ export function useChatWebSocket() {
     wsRef.current = ws
 
     ws.onopen = () => {
-      setConnected(true)
+      // Ignore callbacks from stale WebSocket instances (React Strict Mode)
+      if (ws !== wsRef.current) return
+      useChatStore.getState().setConnected(true)
       console.log('[Chat] Connected')
-      // Agent will automatically send greeting
-      startAssistantMessage()
     }
 
     ws.onmessage = (event) => {
+      if (ws !== wsRef.current) return
       try {
         const data = JSON.parse(event.data) as ChatEvent
-        
+        const store = useChatStore.getState()
+
         switch (data.type) {
           case 'greeting_start':
-            // Already started assistant message on connect
+            // Start the assistant message when backend confirms greeting
+            store.startAssistantMessage()
             break
-            
+
           case 'text':
-            appendText(data.content)
+            store.appendText(data.content)
             break
-            
+
           case 'thinking':
-            appendThinking(data.content)
+            store.appendThinking(data.content)
             break
-            
+
           case 'tool_use':
-            addToolCall(data.name, data.input)
+            store.addToolCall(data.name, data.input)
             break
-            
+
           case 'tool_result':
-            setToolResult(data.content, data.isError)
+            store.setToolResult(data.content, data.isError)
             break
-            
+
           case 'permission_request':
-            setPermissionRequest({ tool: data.tool, input: data.input })
+            store.setPermissionRequest({ tool: data.tool, input: data.input })
             break
-            
+
           case 'session_end':
-            setSessionStats(data.stats)
-            finalizeAssistantMessage()
+            store.setSessionStats(data.stats)
+            store.finalizeAssistantMessage()
             break
-            
+
           case 'error':
             console.error('[Chat] Error:', data.message)
-            finalizeAssistantMessage()
+            store.finalizeAssistantMessage()
             break
         }
       } catch (e) {
@@ -88,45 +79,40 @@ export function useChatWebSocket() {
     }
 
     ws.onclose = (event) => {
-      setConnected(false)
+      if (ws !== wsRef.current) return
+      const store = useChatStore.getState()
+      store.setConnected(false)
+      // If we were mid-response, finalize so the UI doesn't get stuck
+      if (store.isLoading) {
+        store.finalizeAssistantMessage()
+      }
       console.log('[Chat] Disconnected', event.code, event.reason)
-      
+
       // Handle authentication failure
       if (event.code === WS_CLOSE_AUTH_REQUIRED) {
         console.log('[Chat] Authentication required, refreshing auth state')
-        // Re-check auth status - this will update the UI to show login if needed
-        checkAuth()
+        useAuthStore.getState().checkAuth()
       }
     }
 
     ws.onerror = (error) => {
+      if (ws !== wsRef.current) return
       console.error('[Chat] Error:', error)
     }
-  }, [
-    setConnected,
-    startAssistantMessage,
-    appendText,
-    appendThinking,
-    addToolCall,
-    setToolResult,
-    finalizeAssistantMessage,
-    setSessionStats,
-    setPermissionRequest,
-    checkAuth,
-  ])
+  }, [])
 
   const sendMessage = useCallback((content: string) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       useChatStore.getState().addUserMessage(content)
-      startAssistantMessage()
-      
+      useChatStore.getState().startAssistantMessage()
+
       wsRef.current.send(JSON.stringify({
         type: 'message',
         content,
-        devMode,
+        devMode: devModeRef.current,
       }))
     }
-  }, [devMode, startAssistantMessage])
+  }, [])
 
   const respondToPermission = useCallback((allowed: boolean) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
@@ -134,9 +120,9 @@ export function useChatWebSocket() {
         type: 'permission_response',
         allowed,
       }))
-      setPermissionRequest(null)
+      useChatStore.getState().setPermissionRequest(null)
     }
-  }, [setPermissionRequest])
+  }, [])
 
   const disconnect = useCallback(() => {
     if (wsRef.current) {
@@ -147,7 +133,9 @@ export function useChatWebSocket() {
 
   useEffect(() => {
     connect()
-    return () => disconnect()
+    return () => {
+      disconnect()
+    }
   }, [connect, disconnect])
 
   return { sendMessage, respondToPermission, reconnect: connect }

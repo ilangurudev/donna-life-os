@@ -128,8 +128,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   finalizeAssistantMessage: () => {
     const { currentMessage } = get()
-    // Finalize if there are any blocks (thinking, tools, or text)
-    if (currentMessage && currentMessage.blocks && currentMessage.blocks.length > 0) {
+    // Finalize only if blocks contain actual content (not just empty text)
+    const hasContent = currentMessage?.blocks?.some(block => {
+      if (block.type === 'text') return block.content?.trim().length > 0
+      return true // thinking and tool blocks always count
+    })
+    if (currentMessage && currentMessage.blocks && currentMessage.blocks.length > 0 && hasContent) {
       set((state) => ({
         messages: [...state.messages, currentMessage as ChatMessage],
         currentMessage: null,
