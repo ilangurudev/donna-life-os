@@ -27,7 +27,7 @@ You need to run **both** the backend and frontend servers for the web interface:
 
 **Terminal 1 - Backend (FastAPI)**:
 ```bash
-uv run uvicorn src.web.main:app --reload --port 8000
+uv run uvicorn donna_life_os.web.main:app --reload --port 8000
 ```
 
 **Terminal 2 - Frontend (Vite)**:
@@ -42,7 +42,7 @@ Then open http://localhost:5173 in your browser.
 For the terminal interface (no web server needed):
 
 ```bash
-uv run python -m src.cli
+uv run python -m donna_life_os.cli
 ```
 
 ## Environment Variables
@@ -67,7 +67,7 @@ ALLOWED_EMAIL_DOMAINS=example.com,mycompany.com
 
 ```
 donna-life-os/
-├── src/                    # Python backend
+├── donna_life_os/          # Python backend (installable package)
 │   ├── cli.py              # Terminal interface
 │   ├── core.py             # DonnaAgent class
 │   ├── web/                # FastAPI web server

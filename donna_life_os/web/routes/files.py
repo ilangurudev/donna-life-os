@@ -12,17 +12,9 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler, FileSystemEvent
 
-# Import config - handle both package and direct execution
-try:
-    from ...config import DONNA_DATA_DIR
-    from ..auth.middleware import verify_websocket_auth
-    from ..auth.config import get_auth_config
-except ImportError:
-    import sys
-    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-    from config import DONNA_DATA_DIR
-    from web.auth.middleware import verify_websocket_auth
-    from web.auth.config import get_auth_config
+from donna_life_os.config import DONNA_DATA_DIR
+from donna_life_os.web.auth.middleware import verify_websocket_auth
+from donna_life_os.web.auth.config import get_auth_config
 
 
 router = APIRouter(tags=["files"])

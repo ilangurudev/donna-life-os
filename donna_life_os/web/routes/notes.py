@@ -18,13 +18,7 @@ class NoteContent(BaseModel):
     """Request body for updating note content."""
     content: str
 
-# Import config - handle both package and direct execution
-try:
-    from ...config import DONNA_DATA_DIR
-except ImportError:
-    import sys
-    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-    from config import DONNA_DATA_DIR
+from donna_life_os.config import DONNA_DATA_DIR
 
 
 router = APIRouter(prefix="/api/notes", tags=["notes"])

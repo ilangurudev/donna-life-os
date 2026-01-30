@@ -62,7 +62,7 @@ AUTO_ALLOWED_TOOLS = [
 # Data Paths
 # =============================================================================
 
-# Project root for reference (one level up from src/)
+# Project root for reference (one level up from donna_life_os/)
 PROJECT_ROOT = Path(__file__).parent.parent
 
 # Base directory for all Donna data files
