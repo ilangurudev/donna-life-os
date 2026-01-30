@@ -6,4 +6,4 @@ set -a  # automatically export all variables
 source .env
 set +a
 
-.venv/bin/python -m uvicorn src.web.main:app --host 0.0.0.0 --reload --port 8000
+.venv/bin/python -m uvicorn donna_life_os.web.main:app --host 0.0.0.0 --reload --port 8000

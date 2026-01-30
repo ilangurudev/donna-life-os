@@ -7,7 +7,6 @@ Handles real-time communication with the Donna agent.
 import asyncio
 import json
 import logging
-from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
@@ -23,17 +22,9 @@ from claude_agent_sdk import (
     ResultMessage,
 )
 
-# Import core - handle both package and direct execution
-try:
-    from ...core import DonnaAgent, PermissionRequest
-    from ..auth.middleware import verify_websocket_auth
-    from ..auth.config import get_auth_config
-except ImportError:
-    import sys
-    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-    from core import DonnaAgent, PermissionRequest
-    from web.auth.middleware import verify_websocket_auth
-    from web.auth.config import get_auth_config
+from donna_life_os.core import DonnaAgent, PermissionRequest
+from donna_life_os.web.auth.middleware import verify_websocket_auth
+from donna_life_os.web.auth.config import get_auth_config
 
 
 router = APIRouter(tags=["chat"])

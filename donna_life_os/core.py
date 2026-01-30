@@ -32,33 +32,18 @@ from claude_agent_sdk import (
     PermissionResultDeny,
 )
 
-# Handle both direct execution and package import
-try:
-    from .config import (
-        MODEL,
-        MAX_THINKING_TOKENS,
-        ALLOWED_TOOLS,
-        AUTO_ALLOWED_TOOLS,
-        DONNA_DATA_DIR,
-        CURRENT_CONTEXT_FILE,
-        USER_PREFERENCES_FILE,
-        MAX_BUDGET_USD,
-        MAX_TURNS,
-        LOG_DIR,
-    )
-except ImportError:
-    from config import (
-        MODEL,
-        MAX_THINKING_TOKENS,
-        ALLOWED_TOOLS,
-        AUTO_ALLOWED_TOOLS,
-        DONNA_DATA_DIR,
-        CURRENT_CONTEXT_FILE,
-        USER_PREFERENCES_FILE,
-        MAX_BUDGET_USD,
-        MAX_TURNS,
-        LOG_DIR,
-    )
+from donna_life_os.config import (
+    MODEL,
+    MAX_THINKING_TOKENS,
+    ALLOWED_TOOLS,
+    AUTO_ALLOWED_TOOLS,
+    DONNA_DATA_DIR,
+    CURRENT_CONTEXT_FILE,
+    USER_PREFERENCES_FILE,
+    MAX_BUDGET_USD,
+    MAX_TURNS,
+    LOG_DIR,
+)
 
 
 class ConversationLogger:
@@ -563,16 +548,16 @@ class DonnaAgent:
         # Build full system prompt with user preferences, current context, and date/time
         full_prompt = build_full_system_prompt(client_timezone=self._client_timezone)
         
-        # Get the src directory path for cwd (where .claude/ skills live)
-        src_dir = str(Path(__file__).parent)
-        
+        # Get the package directory path for cwd (where .claude/ skills live)
+        package_dir = str(Path(__file__).parent)
+
         options = ClaudeAgentOptions(
             system_prompt=full_prompt,
             model=self._model,
             allowed_tools=self._allowed_tools,
             can_use_tool=self._permission_handler,
-            # Set cwd to src/ so Donna loads skills from src/.claude/
-            cwd=src_dir,
+            # Set cwd to donna_life_os/ so Donna loads skills from donna_life_os/.claude/
+            cwd=package_dir,
             # Load settings from project .claude/ directory
             setting_sources=["project"],
             # Extended thinking configuration
