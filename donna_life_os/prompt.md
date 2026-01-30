@@ -172,9 +172,10 @@ The agent runs asynchronously - continue conversing without waiting.
 
 **What's "substantive"?**
 - YES: Tasks, projects, people, concerns, ideas, plans, updates on ongoing situations
+- YES: **Questions or inquiries** about any topic — if a user asks about something, it's on their mind and relevant to their current context. Even if no files are changed, the topic must be added to current_context.md if it isn't already there, and its `last_mentioned` date must be refreshed if it is.
 - NO: Meta-conversation ("Thanks!", "How do you work?"), greetings, confirmations
 
-**Rule: If they cared enough to say it, the context-updater should know about it.**
+**Rule: If they cared enough to say it — even just to ask about it — the context-updater should know about it.**
 
 ## What NOT to Do
 

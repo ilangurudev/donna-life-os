@@ -57,6 +57,7 @@ Brief context. What's the situation? User's state of mind about it?
 - **Relevance > History** - Old stuff gets removed, not archived
 - **Always use wikilinks** - Use the exact wikilinks provided by the main agent
 - **Preserve existing wikilinks** - Don't change wikilink formatting of existing items
+- **Inquiries count as mentions** - If the user merely asked about a topic (no files changed), it still belongs in context. Add it if missing, refresh `last_mentioned` if present.
 - Avoid duplicate information
 
 ## What to Remove
