@@ -193,6 +193,7 @@ function BlockRenderer({ block, isUser, showStreamingCursor }: BlockRendererProp
             input: block.input,
             result: block.result,
             isError: block.isError,
+            isSubagent: !!block.parentToolUseId,
           }}
         />
       )

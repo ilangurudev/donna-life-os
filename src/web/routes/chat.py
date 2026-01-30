@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 from claude_agent_sdk import (
     AssistantMessage,
+    UserMessage,
     TextBlock,
     ToolUseBlock,
     ToolResultBlock,
@@ -121,6 +122,7 @@ async def process_agent_response(
         message_count += 1
         logger.info(f"[CHAT] Received message {message_count}: {type(message).__name__}")
         if isinstance(message, AssistantMessage):
+            parent_id = getattr(message, "parent_tool_use_id", None)
             for block in message.content:
                 # Handle thinking/reasoning blocks
                 if hasattr(block, "thinking") and block.thinking:
@@ -135,12 +137,24 @@ async def process_agent_response(
                         await send_message_event(websocket, "tool_use", {
                             "name": block.name,
                             "input": block.input,
+                            "toolId": block.id,
+                            "parentToolUseId": parent_id,
                         })
 
-                # Handle tool result blocks
-                elif isinstance(block, ToolResultBlock):
+                # Handle text blocks (the actual response)
+                elif isinstance(block, TextBlock):
+                    # Filter empty text and SDK artifact "(no content)" placeholder
+                    if block.text and block.text.strip() and block.text.strip() != "(no content)":
+                        await send_message_event(websocket, "text", {
+                            "content": block.text
+                        })
+
+        # Handle tool results from UserMessage
+        elif isinstance(message, UserMessage):
+            parent_id = getattr(message, "parent_tool_use_id", None)
+            for block in message.content:
+                if isinstance(block, ToolResultBlock):
                     if dev_mode:
-                        # Extract text content from tool result
                         content = block.content
                         if isinstance(content, list):
                             texts = []
@@ -153,15 +167,9 @@ async def process_agent_response(
 
                         await send_message_event(websocket, "tool_result", {
                             "content": str(content) if content else "",
-                            "isError": block.is_error,
-                        })
-
-                # Handle text blocks (the actual response)
-                elif isinstance(block, TextBlock):
-                    # Filter empty text and SDK artifact "(no content)" placeholder
-                    if block.text and block.text.strip() and block.text.strip() != "(no content)":
-                        await send_message_event(websocket, "text", {
-                            "content": block.text
+                            "isError": getattr(block, "is_error", False),
+                            "toolUseId": getattr(block, "tool_use_id", None),
+                            "parentToolUseId": parent_id,
                         })
         
         # Capture result message for summary

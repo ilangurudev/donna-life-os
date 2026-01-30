@@ -42,7 +42,7 @@ export type MobileView = 'chat' | 'notes' | 'note-detail'
 // Content block types for preserving temporal flow
 export type ContentBlock =
   | { type: 'thinking'; content: string }
-  | { type: 'tool_use'; id: string; name: string; input: Record<string, unknown>; result?: string; isError?: boolean }
+  | { type: 'tool_use'; id: string; name: string; input: Record<string, unknown>; result?: string; isError?: boolean; toolId?: string; parentToolUseId?: string | null }
   | { type: 'text'; content: string }
 
 // Chat message types
@@ -59,14 +59,15 @@ export interface ToolCall {
   input: Record<string, unknown>
   result?: string
   isError?: boolean
+  isSubagent?: boolean
 }
 
 // WebSocket event types
 export type ChatEvent =
   | { type: 'text'; content: string }
   | { type: 'thinking'; content: string }
-  | { type: 'tool_use'; name: string; input: Record<string, unknown> }
-  | { type: 'tool_result'; content: string; isError: boolean }
+  | { type: 'tool_use'; name: string; input: Record<string, unknown>; toolId?: string; parentToolUseId?: string | null }
+  | { type: 'tool_result'; content: string; isError: boolean; toolUseId?: string; parentToolUseId?: string | null }
   | { type: 'permission_request'; tool: string; input: Record<string, unknown> }
   | { type: 'session_end'; stats: SessionStats }
   | { type: 'greeting_start' }

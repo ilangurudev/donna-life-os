@@ -52,11 +52,11 @@ export function useChatWebSocket() {
             break
 
           case 'tool_use':
-            store.addToolCall(data.name, data.input)
+            store.addToolCall(data.name, data.input, data.toolId, data.parentToolUseId)
             break
 
           case 'tool_result':
-            store.setToolResult(data.content, data.isError)
+            store.setToolResult(data.content, data.isError, data.toolUseId)
             break
 
           case 'permission_request':

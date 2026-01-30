@@ -15,8 +15,8 @@ interface ChatState {
   startAssistantMessage: () => void
   appendText: (text: string) => void
   appendThinking: (thinking: string) => void
-  addToolCall: (name: string, input: Record<string, unknown>) => void
-  setToolResult: (result: string, isError: boolean) => void
+  addToolCall: (name: string, input: Record<string, unknown>, toolId?: string, parentToolUseId?: string | null) => void
+  setToolResult: (result: string, isError: boolean, toolUseId?: string) => void
   finalizeAssistantMessage: () => void
   setConnected: (connected: boolean) => void
   setLoading: (loading: boolean) => void
@@ -96,28 +96,38 @@ export const useChatStore = create<ChatState>((set, get) => ({
     })
   },
 
-  addToolCall: (name: string, input: Record<string, unknown>) => {
-    const toolId = `tool-${++toolIdCounter}`
+  addToolCall: (name: string, input: Record<string, unknown>, sdkToolId?: string, parentToolUseId?: string | null) => {
+    const localId = `tool-${++toolIdCounter}`
     set((state) => {
       if (!state.currentMessage) return state
 
       const blocks = [...(state.currentMessage.blocks || [])]
-      blocks.push({ type: 'tool_use', id: toolId, name, input })
+      blocks.push({ type: 'tool_use', id: localId, name, input, toolId: sdkToolId, parentToolUseId })
 
       return {
         currentMessage: { ...state.currentMessage, blocks },
-        currentToolId: toolId,
+        currentToolId: localId,
       }
     })
   },
 
-  setToolResult: (result: string, isError: boolean) => {
+  setToolResult: (result: string, isError: boolean, toolUseId?: string) => {
     set((state) => {
-      if (!state.currentMessage?.blocks?.length || !state.currentToolId) return state
+      if (!state.currentMessage?.blocks?.length) return state
+
+      // Match by SDK toolUseId if provided, otherwise fall back to currentToolId
+      const matchId = toolUseId
+        ? undefined  // will match by toolId field
+        : state.currentToolId
 
       const blocks = state.currentMessage.blocks.map((block) => {
-        if (block.type === 'tool_use' && block.id === state.currentToolId) {
-          return { ...block, result, isError }
+        if (block.type === 'tool_use') {
+          if (toolUseId && block.toolId === toolUseId) {
+            return { ...block, result, isError }
+          }
+          if (!toolUseId && block.id === matchId) {
+            return { ...block, result, isError }
+          }
         }
         return block
       })

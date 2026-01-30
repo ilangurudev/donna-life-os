@@ -82,3 +82,10 @@ MAX_BUDGET_USD: float | None = None
 
 # Maximum conversation turns per session (None = no limit)
 MAX_TURNS: int | None = None
+
+# =============================================================================
+# Logging
+# =============================================================================
+
+# Directory for conversation logs
+LOG_DIR = PROJECT_ROOT / "logs"

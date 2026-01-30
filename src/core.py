@@ -6,6 +6,7 @@ Uses async event-based permission handling for flexibility.
 """
 
 import asyncio
+import json
 import logging
 import shutil
 from dataclasses import dataclass, field
@@ -23,6 +24,10 @@ from claude_agent_sdk import (
     ClaudeSDKClient,
     ClaudeAgentOptions,
     AssistantMessage,
+    ResultMessage,
+    TextBlock,
+    ToolUseBlock,
+    ToolResultBlock,
     PermissionResultAllow,
     PermissionResultDeny,
 )
@@ -39,6 +44,7 @@ try:
         USER_PREFERENCES_FILE,
         MAX_BUDGET_USD,
         MAX_TURNS,
+        LOG_DIR,
     )
 except ImportError:
     from config import (
@@ -51,7 +57,61 @@ except ImportError:
         USER_PREFERENCES_FILE,
         MAX_BUDGET_USD,
         MAX_TURNS,
+        LOG_DIR,
     )
+
+
+class ConversationLogger:
+    """Streams conversation log entries to a JSONL file as they happen."""
+
+    def __init__(self, log_dir: Path):
+        self.log_dir = log_dir
+        self.log_dir.mkdir(parents=True, exist_ok=True)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.log_file = log_dir / f"{timestamp}.jsonl"
+
+    def log(self, entry_type: str, data: dict):
+        entry = {
+            "timestamp": datetime.now().isoformat(),
+            "type": entry_type,
+            **data,
+        }
+        with open(self.log_file, "a") as f:
+            f.write(json.dumps(entry, default=str) + "\n")
+
+    def log_message(self, message):
+        """Log an AssistantMessage or ResultMessage from the SDK."""
+        if isinstance(message, AssistantMessage):
+            blocks = []
+            for block in message.content:
+                if isinstance(block, TextBlock):
+                    if block.text and block.text.strip() and block.text.strip() != "(no content)":
+                        blocks.append({"type": "text", "text": block.text})
+                elif hasattr(block, "thinking") and block.thinking:
+                    blocks.append({"type": "thinking", "thinking": block.thinking})
+                elif isinstance(block, ToolUseBlock):
+                    blocks.append({
+                        "type": "tool_use",
+                        "id": block.id,
+                        "name": block.name,
+                        "input": block.input,
+                    })
+                elif isinstance(block, ToolResultBlock):
+                    blocks.append({
+                        "type": "tool_result",
+                        "tool_use_id": block.tool_use_id,
+                        "content": block.content,
+                        "is_error": block.is_error,
+                    })
+            if blocks:
+                self.log("assistant_message", {"content": blocks})
+        elif isinstance(message, ResultMessage):
+            self.log("result", {
+                "num_turns": getattr(message, "num_turns", None),
+                "duration_ms": getattr(message, "duration_ms", None),
+                "total_cost_usd": getattr(message, "total_cost_usd", None),
+                "usage": getattr(message, "usage", None),
+            })
 
 
 def load_current_context() -> str:
@@ -466,6 +526,7 @@ class DonnaAgent:
         self._client_timezone = client_timezone
         self._client: ClaudeSDKClient | None = None
         self._greeting_sent = False
+        self._logger = ConversationLogger(LOG_DIR)
     
     async def _permission_handler(
         self,
@@ -524,10 +585,12 @@ class DonnaAgent:
         )
         self._client = ClaudeSDKClient(options=options)
         await self._client.__aenter__()
+        self._logger.log("system_prompt", {"prompt": full_prompt})
         
         # Send automatic greeting if enabled
         if self._auto_greet:
             greeting_prompt = generate_greeting_prompt()
+            self._logger.log("user_message", {"text": greeting_prompt})
             await self._client.query(create_user_message(greeting_prompt))
             self._greeting_sent = True
         
@@ -552,13 +615,8 @@ class DonnaAgent:
         if self._client is None:
             raise RuntimeError("DonnaAgent must be used as an async context manager")
 
-        logger.info(f"[CORE] send_message called: {text[:50]}...")
-        try:
-            await self._client.query(create_user_message(text))
-            logger.info("[CORE] _client.query() completed")
-        except Exception as e:
-            logger.error(f"[CORE] _client.query() failed: {e}")
-            raise
+        self._logger.log("user_message", {"text": text})
+        await self._client.query(create_user_message(text))
     
     async def receive_response(self) -> AsyncGenerator[AssistantMessage, None]:
         """
@@ -573,14 +631,6 @@ class DonnaAgent:
         if self._client is None:
             raise RuntimeError("DonnaAgent must be used as an async context manager")
 
-        logger.info("[CORE] receive_response called, starting to iterate")
-        message_count = 0
-        try:
-            async for message in self._client.receive_response():
-                message_count += 1
-                logger.info(f"[CORE] Yielding message {message_count}: {type(message).__name__}")
-                yield message
-            logger.info(f"[CORE] receive_response completed, yielded {message_count} messages")
-        except Exception as e:
-            logger.error(f"[CORE] receive_response failed after {message_count} messages: {e}")
-            raise
+        async for message in self._client.receive_response():
+            self._logger.log_message(message)
+            yield message

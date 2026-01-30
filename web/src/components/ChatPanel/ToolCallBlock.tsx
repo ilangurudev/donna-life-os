@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Wrench, ChevronDown, ChevronRight, CheckCircle, XCircle } from 'lucide-react'
+import { Wrench, GitBranch, ChevronDown, ChevronRight, CheckCircle, XCircle } from 'lucide-react'
 import clsx from 'clsx'
 import type { ToolCall } from '../../types'
 
@@ -11,14 +11,18 @@ export function ToolCallBlock({ toolCall }: ToolCallBlockProps) {
   const [isExpanded, setIsExpanded] = useState(false)
 
   const hasResult = toolCall.result !== undefined
+  const isSubagent = toolCall.isSubagent
 
   return (
     <div
       className={clsx(
         'rounded-lg border overflow-hidden animate-fade-in',
+        isSubagent && 'ml-4',
         toolCall.isError
           ? 'border-donna-red/30 bg-donna-red/10'
-          : 'border-donna-yellow/30 bg-donna-yellow/10'
+          : isSubagent
+            ? 'border-donna-purple/30 bg-donna-purple/10'
+            : 'border-donna-yellow/30 bg-donna-yellow/10'
       )}
     >
       <button
@@ -27,19 +31,26 @@ export function ToolCallBlock({ toolCall }: ToolCallBlockProps) {
           'flex w-full items-center gap-2 px-3 py-2 text-left transition-colors',
           toolCall.isError
             ? 'hover:bg-donna-red/20'
-            : 'hover:bg-donna-yellow/20'
+            : isSubagent
+              ? 'hover:bg-donna-purple/20'
+              : 'hover:bg-donna-yellow/20'
         )}
       >
         {isExpanded ? (
-          <ChevronDown className="h-4 w-4 text-donna-yellow" />
+          <ChevronDown className={clsx('h-4 w-4', isSubagent ? 'text-donna-purple' : 'text-donna-yellow')} />
         ) : (
-          <ChevronRight className="h-4 w-4 text-donna-yellow" />
+          <ChevronRight className={clsx('h-4 w-4', isSubagent ? 'text-donna-purple' : 'text-donna-yellow')} />
         )}
-        <Wrench className="h-4 w-4 text-donna-yellow" />
-        <span className="text-sm font-medium text-donna-yellow">
+        {isSubagent ? (
+          <GitBranch className="h-4 w-4 text-donna-purple" />
+        ) : (
+          <Wrench className="h-4 w-4 text-donna-yellow" />
+        )}
+        <span className={clsx('text-sm font-medium', isSubagent ? 'text-donna-purple' : 'text-donna-yellow')}>
+          {isSubagent && <span className="opacity-60">(subagent) </span>}
           {toolCall.name}
         </span>
-        
+
         {/* Result indicator */}
         {hasResult && (
           <span className="ml-auto">
